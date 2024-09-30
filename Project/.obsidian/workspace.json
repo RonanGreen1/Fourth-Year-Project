@@ -86,7 +86,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "6718bb594cdb4b3f",
@@ -163,7 +164,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e118cb7f6a0b913f",
+  "active": "08631d9f928ec6f5",
   "lastOpenFiles": [
     "Subjects/Concurrent Development/Notes/Concurrency.md",
     "Subjects/Agile Software/Development/Poster Planning.md",
