@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"cc4da164809f14fa","type":"text","text":"Take Picture","x":-400,"y":-320,"width":250,"height":60},
+		{"id":"57d0d92544c30376","x":-80,"y":-319,"width":250,"height":60,"type":"text","text":"View Shopping List"},
+		{"id":"313646e3cad55884","x":260,"y":-320,"width":250,"height":60,"type":"text","text":"View Recipes"},
+		{"id":"715c28d5033dbd2c","type":"text","text":"User","x":-240,"y":-640,"width":250,"height":60},
+		{"id":"44e465b4d5d5b567","x":-240,"y":-520,"width":250,"height":60,"type":"text","text":"Home Page"},
+		{"id":"42b2c0537a04977d","x":-720,"y":-460,"width":250,"height":60,"type":"text","text":"Manage Account"},
+		{"id":"c65e661d79e0789e","x":-1020,"y":-460,"width":250,"height":60,"type":"text","text":"Reset Password "},
+		{"id":"83c337fb2a652cb0","x":-1020,"y":-289,"width":250,"height":60,"type":"text","text":"NoSql Database"}
+	],
+	"edges":[
+		{"id":"1b7d9e0a7e39e370","fromNode":"715c28d5033dbd2c","fromSide":"bottom","toNode":"44e465b4d5d5b567","toSide":"top","label":"Logs In"},
+		{"id":"546470139bd950c5","fromNode":"44e465b4d5d5b567","fromSide":"bottom","toNode":"42b2c0537a04977d","toSide":"top"},
+		{"id":"a469f1992df0b8d5","fromNode":"44e465b4d5d5b567","fromSide":"bottom","toNode":"cc4da164809f14fa","toSide":"top"},
+		{"id":"3b8d7e2eca5c369c","fromNode":"44e465b4d5d5b567","fromSide":"bottom","toNode":"57d0d92544c30376","toSide":"top"},
+		{"id":"1fe7e39f0b79fa00","fromNode":"44e465b4d5d5b567","fromSide":"bottom","toNode":"313646e3cad55884","toSide":"top"},
+		{"id":"82f0c70a90f0a96b","fromNode":"42b2c0537a04977d","fromSide":"left","toNode":"c65e661d79e0789e","toSide":"right"},
+		{"id":"23ea3b249c640253","fromNode":"c65e661d79e0789e","fromSide":"bottom","toNode":"83c337fb2a652cb0","toSide":"top","label":"Update"}
+	]
+}

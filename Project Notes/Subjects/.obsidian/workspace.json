@@ -1,56 +1,55 @@
 {
   "main": {
-    "id": "0a1faa465de914db",
+    "id": "1385de46c563bc02",
     "type": "split",
     "children": [
       {
-        "id": "49629a520a2aff7d",
+        "id": "84a53f42faaa4574",
         "type": "tabs",
         "children": [
           {
-            "id": "568b4cb9c6816052",
+            "id": "f5fb2d8faea8ac19",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {}
+              "type": "canvas",
+              "state": {
+                "file": "App/App Layout.canvas",
+                "viewState": {
+                  "x": -255,
+                  "y": -434.5,
+                  "zoom": -0.49765094086778755
+                }
+              }
             }
           },
           {
-            "id": "95ceb13cab4a3261",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {}
-            }
-          },
-          {
-            "id": "e118cb7f6a0b913f",
+            "id": "1005e93a4e5427ff",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Subjects/Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
   },
   "left": {
-    "id": "359b8768748dc2a8",
+    "id": "8753a5cac9740897",
     "type": "split",
     "children": [
       {
-        "id": "dfb1938dd5e5284e",
+        "id": "7867bf90fb8f020c",
         "type": "tabs",
         "children": [
           {
-            "id": "08631d9f928ec6f5",
+            "id": "c0579d55045e4492",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -60,7 +59,7 @@
             }
           },
           {
-            "id": "6110b3a2394cf5a1",
+            "id": "9f3303c4a43e8a08",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -75,7 +74,7 @@
             }
           },
           {
-            "id": "bcb1a33eda3f448b",
+            "id": "27dcb6e17b32b68d",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -86,24 +85,23 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 300
   },
   "right": {
-    "id": "6718bb594cdb4b3f",
+    "id": "c25792fcd8d652ea",
     "type": "split",
     "children": [
       {
-        "id": "e58063feed7d7106",
+        "id": "999badf95d2017e8",
         "type": "tabs",
         "children": [
           {
-            "id": "dcc31d34030b104b",
+            "id": "c8b865820bb4225c",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Subjects/Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,19 +113,19 @@
             }
           },
           {
-            "id": "44eac42d924f37d0",
+            "id": "42296addcf6150ea",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Subjects/Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
             }
           },
           {
-            "id": "99b40c4d2be7d742",
+            "id": "2cf76b3bf853ec88",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -138,12 +136,12 @@
             }
           },
           {
-            "id": "50a0f1c2af544739",
+            "id": "3293e6cc3b5cae42",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "Subjects/Project/Project Prep/Technologies.md"
+                "file": "App/Technologies.md"
               }
             }
           }
@@ -164,35 +162,15 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "08631d9f928ec6f5",
+  "active": "1005e93a4e5427ff",
   "lastOpenFiles": [
-    "Subjects/Concurrent Development/Notes/Concurrency.md",
-    "Subjects/Agile Software/Development/Poster Planning.md",
-    "Subjects/Concurrent Development/Go/Commands.md",
-    "Subjects/Data Science/Notes/Dataset.md",
-    "Subjects/Data Science/Portfolio/Resources.md",
-    "Subjects/Project/Project Prep/Technologies.md",
-    "Subjects/Data Science/Notes",
-    "Subjects/Project/Project submissions/Design Manual.md",
-    "Subjects/Project/Project submissions/Project.md",
-    "Subjects/Project/Project submissions/Functional Spec.md",
-    "Subjects/Project/Project submissions",
-    "Subjects/Project/Project Prep/Project Selection.md",
-    "To Do.md",
-    "Subjects/Agile Software/Development/Poster Planning/Untitled.md",
-    "Subjects/Agile Software/Development/Poster Planning",
-    "Untitled 1.md",
-    "Subjects/Concurrent Development/Go/Practice.md",
-    "Subjects/Agile Software/Development/Ethics.md",
-    "Descriptions/Technologies",
-    "Descriptions/Definitions",
-    "Descriptions",
-    "Subjects/Agile Software/Development",
-    "Subjects/Agile Software/Verification",
-    "Subjects/Data Science/Portfolio",
-    "Subjects/Concurrent Development/Go",
-    "Lecturers/Emails.md",
-    "Subjects/Concurrent Development/Pre Requisites/Software Downloads.md",
-    "Welcome.md"
+    "Project/Project Prep/Technologies.md",
+    "App/Technologies.md",
+    "App/App Layout.canvas",
+    "Project/Project Prep/Project Selection.md",
+    "App",
+    "Project/Project submissions/Project.md",
+    "Project/Project submissions/Functional Spec.md",
+    "Project/Project submissions/Design Manual.md"
   ]
 }

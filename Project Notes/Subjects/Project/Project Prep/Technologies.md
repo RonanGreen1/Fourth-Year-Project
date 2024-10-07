@@ -62,12 +62,7 @@
 		- It operate by breaking the image up into a grid and then having each cell of the grid responsible for detecting objects. 
 		- the name Yolo stands for 'You Only Look Once' indicating towards one of its key features which is it preforms detection in a single pass instead of multiple stages. 
 		- Highly useful for detecting multiple objects in complex images.
-		- It has a smaller more compact version known as Tiny Yolo for mobile and emebeddd devices. 
-	- MobileNet
-		- MobileNet is a Convolutional Neural Network ([CNN](https://www.geeksforgeeks.org/introduction-convolution-neural-network/)) architecture optimized for mobile and embedded devices. 
-		- The main uses for Mobilenet is image classification and feature extraction using minimal resources. 
-		- It is lightweight and efficient as it uses [Depthwise Seperable Convolutions](https://towardsdatascience.com/understanding-depthwise-separable-convolutions-and-the-efficiency-of-mobilenets-6de3d6b62503) which reduced the number of parameters and operations. 
-		- It can be paired with object detection frameworks like Single Shot Detector([SSD](https://towardsdatascience.com/review-ssd-single-shot-detector-object-detection-851a94607d11)) to perform detection on mobile devices.
+		- It has a smaller more compact version known as Tiny Yolo for mobile and emebbeded devices. 
 
 
 | Models    | Main Use Case                               | Accuracy                                      | Speed           | Efficiency | Size  |
@@ -79,20 +74,11 @@
 [Mobilenet documentation](https://keras.io/api/applications/mobilenet/) 
 [Mobilenet explanation](https://medium.com/@godeep48/an-overview-on-mobilenet-an-efficient-mobile-vision-cnn-f301141db94d) 
 
-- **Google ML Kit**: ML Kit is a mobile SDK that brings googles on device machine learning expertise to Android. 
-	- It allows for real-time use cases where you want you want to process images. 
-	- is somewhat similar in terms of functionality to Yolo and Mobilenet, but it is a higher-level framework designed specifically for mobile applications, providing pre-built machine learning models for tasks like image recognition, object detection, text recognition, and more.
-	- Unlike YOLO or MobileNet, which require you to implement or train models, ML Kit offers out-of-the-box machine learning. 
-[ML Kit Guide](https://developers.google.com/ml-kit/guides) 
-### Integration with Chat GPT
-- **OpenAI API**: To analyze and describe ingredients based on image and also recommending healthier options. 
-	- Comes with a cost for use. 
-[OpenAI API Spec](https://platform.openai.com/docs/overview) 
 
 ### Barcode Scanning
 - **ZXing**: An open source barcode scanning library can be used to scan barcodes from food items
 	- ZXing ("zebra crossing") is an open-source, multi-format 1D/2D barcode image processing library implemented in Java, with ports to other languages.
-[Zxing Documentation](https://github.com/zxing/zxing)
+[Zxing Documentation](https://github.com/zxing/zxing) 
 
 ### Database for barcode lookup
 - **Open Food Facts API**: A globally community run database for foods and their details. 
@@ -103,7 +89,7 @@
 | Open Food Facts API      | Global coverage(Mainly Europe) | Nutritional info, eco-scores, product labels | May vary as users input the data | Free |
 | Edamam Food Database API | Global Coverage(Mainly USA)    | Nutritional info, health labels, recipes     | Consistent and standardised      | Paid |
 
-[Open Food Facts API Doc](https://openfoodfacts.github.io/openfoodfacts-server/api/) 
+
 [Edamam Food Database API Docs](https://api.edamam.com/)
 ### Machine Learning Framework for Recipe Recommendations
 - **LiteRT**: For on-device recipe recommendations
@@ -113,7 +99,7 @@
 	 - [Recipes](https://www.kaggle.com/datasets/paultimothymooney/recipenlg) 
 	 - [Food Images](https://www.kaggle.com/datasets/kmader/food41) 
 	 - [Alternatives](https://www.kaggle.com/datasets/thedevastator/the-nutritional-content-of-food-a-comprehensive) 
-	 - [Allergies](https://www.kaggle.com/datasets/boltcutters/food-allergens-and-allergies)
+	 - [Allergies](https://www.kaggle.com/datasets/boltcutters/food-allergens-and-allergies) 
 
 ### Recipe Recommendations APIs
 - **Spoonacular API**: Offers a vast recipe database as well as food and ingredient information. 
@@ -124,7 +110,7 @@
 	- Has extensive cooking details. 
 [Spoonacular API Docs](https://spoonacular.com/food-api) 
 ### Machine Learning Framework for Shopping List Generation
-- **Tensorflow: For training a model to predict frequently used ingredients and generate shopping lists based on historical data. 
+- **Tensorflow**: For training a model to predict frequently used ingredients and generate shopping lists based on historical data. 
 
 ### Data Storage
 - **Firebase Firestore**: To store ingredient history and scanned items.
@@ -141,13 +127,24 @@
 
 ### Biometric Authentication 
 - **BiometricAPI**: To scan users fingerprints. 
-
 ### Application Permissions
 
 ### User Data Security Encryption
 
-
 ### Possible Technologies
-### APIs
+#### APIs
 - Nutritionix API: provides more detailed nutritional information about food items and restaurant meals.
 
+### Meeting Notes
+- Recipe Generation. 
+- Recommendations. 
+
+
+### Keras 
+- Keras Applications are deep learning models that are made available alongside pre-trained weights. These models can be used for prediction, feature extraction, and fine-tuning.
+- mobilenet is trained off imagenet 
+
+### NoSql
+- Benefits a less structured database which is needed for storying recipes. 
+- Better for scaling 
+- real time updates
