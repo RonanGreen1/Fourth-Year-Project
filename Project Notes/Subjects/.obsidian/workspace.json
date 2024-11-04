@@ -19,7 +19,9 @@
                   "y": -434.5,
                   "zoom": -0.49765094086778755
                 }
-              }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "App Layout"
             }
           },
           {
@@ -28,10 +30,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "Technologies"
             }
           }
         ],
@@ -55,7 +59,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -70,7 +76,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -78,7 +86,9 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
@@ -101,7 +111,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -109,7 +119,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Technologies"
             }
           },
           {
@@ -118,10 +130,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Technologies"
             }
           },
           {
@@ -132,7 +146,9 @@
               "state": {
                 "sortOrder": "frequency",
                 "useHierarchy": true
-              }
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           },
           {
@@ -141,8 +157,10 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project/Project Prep/Technologies.md"
-              }
+                "file": "App/Technologies.md"
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Technologies"
             }
           }
         ]
@@ -164,9 +182,9 @@
   },
   "active": "1005e93a4e5427ff",
   "lastOpenFiles": [
+    "Project/Project Prep/Technologies.md",
     "App/App Layout.canvas",
     "App/Technologies.md",
-    "Project/Project Prep/Technologies.md",
     "Project/Project Prep/Project Selection.md",
     "App",
     "Project/Project submissions/Project.md",
