@@ -44,6 +44,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.appcompat)
     val cameraxVersion = "1.2.2"// Define the CameraX library version as a variable
     implementation("androidx.camera:camera-core:$cameraxVersion")// Core CameraX library for base functionality
     implementation("androidx.camera:camera-camera2:$cameraxVersion")// CameraX integration with the Camera2 API
