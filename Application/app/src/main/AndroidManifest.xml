@@ -8,8 +8,10 @@
     <!-- Request camera permission -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Request microphone permission for video recording -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Request write permission for external storage on Android 9 (P) and earlier -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
@@ -24,7 +26,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Android_App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

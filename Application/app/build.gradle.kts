@@ -6,11 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.android_app" // Specifies the app's namespace, used for generated R classes
-    compileSdk = 34 // Set the SDK level to compile against
+    compileSdk = 35 // Set the SDK level to compile against
 
     defaultConfig {
         applicationId = "com.example.android_app" // Unique identifier for your app
         minSdk = 24 // Minimum Android version supported
+        //noinspection OldTargetApi
         targetSdk = 34 // Android version the app is targeting
         versionCode = 1 // Internal version number of the app
         versionName = "1.0" // User-visible version of the app
@@ -29,12 +30,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8 // Source code compatibility with Java 8
-        targetCompatibility = JavaVersion.VERSION_1_8 // Compiled bytecode compatibility with Java 8
+        sourceCompatibility = JavaVersion.VERSION_11 // Source code compatibility with Java 8
+        targetCompatibility = JavaVersion.VERSION_11 // Compiled bytecode compatibility with Java 8
     }
 
     kotlinOptions {
-        jvmTarget = "1.8" // Use JVM target 1.8 to enable Java 8 features in Kotlin
+        jvmTarget = "11" // Use JVM target 1.8 to enable Java 8 features in Kotlin
     }
 
     buildFeatures {
@@ -44,14 +45,31 @@ android {
 }
 
 dependencies {
+    // Core Android dependencies
     implementation(libs.androidx.appcompat)
-    val cameraxVersion = "1.2.2"// Define the CameraX library version as a variable
-    implementation("androidx.camera:camera-core:$cameraxVersion")// Core CameraX library for base functionality
-    implementation("androidx.camera:camera-camera2:$cameraxVersion")// CameraX integration with the Camera2 API
-    implementation("androidx.camera:camera-lifecycle:$cameraxVersion") // CameraX lifecycle-aware components for automatic lifecycle handling
-    implementation("androidx.camera:camera-video:$cameraxVersion")// CameraX video capture library for video recording functionality
-    implementation("androidx.camera:camera-view:$cameraxVersion")// CameraX View library to simplify displaying the camera feed
-    implementation("androidx.camera:camera-extensions:$cameraxVersion") // CameraX Extensions library for advanced features like HDR and night mode
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core.ktx)
 
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // CameraX dependencies
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    // Jetpack Compose BOM
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    // Testing dependencies
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
