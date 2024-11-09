@@ -51,4 +51,6 @@ dependencies {
     implementation("androidx.camera:camera-video:$cameraxVersion")// CameraX video capture library for video recording functionality
     implementation("androidx.camera:camera-view:$cameraxVersion")// CameraX View library to simplify displaying the camera feed
     implementation("androidx.camera:camera-extensions:$cameraxVersion") // CameraX Extensions library for advanced features like HDR and night mode
+
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 }
