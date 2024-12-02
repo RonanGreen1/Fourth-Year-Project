@@ -73,4 +73,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
 }

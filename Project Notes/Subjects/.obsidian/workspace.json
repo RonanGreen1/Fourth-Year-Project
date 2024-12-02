@@ -37,9 +37,21 @@
               "icon": "lucide-file",
               "title": "Technologies"
             }
+          },
+          {
+            "id": "c2434ae9defc1fd6",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.7.7"
+              },
+              "icon": "lucide-file",
+              "title": "Release Notes 1.7.7"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -180,7 +192,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "1005e93a4e5427ff",
+  "active": "c2434ae9defc1fd6",
   "lastOpenFiles": [
     "Project/Project Prep/Technologies.md",
     "Project/Project Prep/Project Selection.md",
