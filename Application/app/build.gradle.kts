@@ -76,4 +76,7 @@ dependencies {
 
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 }

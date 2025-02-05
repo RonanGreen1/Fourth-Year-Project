@@ -42,12 +42,14 @@
             "id": "c2434ae9defc1fd6",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.7.7"
+                "file": "Project/Project Prep/Technologies.md",
+                "mode": "source",
+                "source": false
               },
               "icon": "lucide-file",
-              "title": "Release Notes 1.7.7"
+              "title": "Technologies"
             }
           }
         ],
@@ -194,9 +196,9 @@
   },
   "active": "c2434ae9defc1fd6",
   "lastOpenFiles": [
+    "App/Technologies.md",
     "Project/Project Prep/Technologies.md",
     "Project/Project Prep/Project Selection.md",
-    "App/Technologies.md",
     "App/App Layout.canvas",
     "App",
     "Project/Project submissions/Project.md",
