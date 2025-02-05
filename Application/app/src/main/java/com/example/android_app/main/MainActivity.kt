@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -22,10 +23,12 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.android_app.api.SpoonacularService.getRecipes
+import com.example.android_app.api.SpoonacularService
 import com.example.android_app.databinding.ActivityMainBinding
 import com.example.android_app.ml.ImageClassifier
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileInputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -34,17 +37,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
     private var imageCapture: ImageCapture? = null
     private lateinit var cameraExecutor: ExecutorService
+
     private lateinit var resultLayout: LinearLayout
     private lateinit var resultTextView: TextView
+    private lateinit var retakeButton: Button
 
-    // Image classifier instance
+    // Our TFLite ImageClassifier
     private lateinit var classifier: ImageClassifier
 
+    // Request camera permissions at runtime
     private val activityResultLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val permissionGranted = permissions.entries.all { it.value }
             if (!permissionGranted) {
-                Toast.makeText(baseContext, "Permission request denied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(baseContext, "Camera permission denied", Toast.LENGTH_SHORT).show()
             } else {
                 startCamera()
             }
@@ -52,24 +58,43 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Inflate layout
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
+        // Assign layout references
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
+        retakeButton = findViewById(R.id.retakeButton)
 
-        classifier = ImageClassifier(this) // Initialize classifier
+        // Hide the result layout initially
+        resultLayout.visibility = View.GONE
 
+        // Create our classifier (loads TFLite model)
+        classifier = ImageClassifier(this)
+
+        // Check permissions and start camera if granted
         if (allPermissionsGranted()) {
             startCamera()
         } else {
             requestPermissions()
         }
 
-        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
+        // When "Take Photo" button is clicked
+        viewBinding.imageCaptureButton.setOnClickListener {
+            takePhoto()
+        }
+
+        // If the user wants to retake the photo
+        retakeButton.setOnClickListener {
+            retakePhoto()
+        }
+
+        // Background executor for CameraX
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
+    // Request camera permission if not granted
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
     }
@@ -78,95 +103,121 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Start the camera preview
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.surfaceProvider = viewBinding.viewFinder.surfaceProvider
-            }
+
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
+                }
+
             imageCapture = ImageCapture.Builder().build()
+
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-            } catch (exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
+            } catch (e: Exception) {
+                Log.e(TAG, "startCamera: Use case binding failed.", e)
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
+    // Capture a photo
     private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
+        val imageCapture = imageCapture ?: run {
+            Log.e(TAG, "ImageCapture not ready.")
+            return
+        }
 
+        // Save to MediaStore (gallery)
         val outputOptions = ImageCapture.OutputFileOptions.Builder(
             contentResolver,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             ContentValues()
         ).build()
 
+        // Actually take the picture
         imageCapture.takePicture(
-            outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
 
+                @SuppressLint("SetTextI18n")
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    output.savedUri?.let { uri ->
-                        val imageBitmap = loadBitmapFromUri(uri)
-                        classifyAndFetchRecipes(imageBitmap) // Call function to classify and fetch recipes
+                    val savedUri: Uri? = output.savedUri
+                    Log.d(TAG, "onImageSaved() called with URI: $savedUri")
+                    if (savedUri != null) {
+                        Log.d(TAG, "Image saved at: $savedUri")
+                        // Load the saved image and classify
+                        val bitmap = loadBitmapFromUri(savedUri)
+                        classifyAndFetchRecipes(bitmap)
                     }
                 }
             }
         )
     }
 
+    // Load the captured image from Uri and return a Bitmap
     private fun loadBitmapFromUri(uri: Uri): Bitmap {
-        val resolver = contentResolver
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val source = ImageDecoder.createSource(resolver, uri)
-            ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+            val source = ImageDecoder.createSource(contentResolver, uri)
+            ImageDecoder.decodeBitmap(source) {
+                    decoder, _, _ ->
                 decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
                 decoder.isMutableRequired = true
             }
         } else {
-            val options = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
-            BitmapFactory.decodeStream(resolver.openInputStream(uri), null, options)!!
+            // Fallback for older devices
+            val inputStream = contentResolver.openInputStream(uri)
+            BitmapFactory.decodeStream(inputStream)!!
         }
     }
 
-    //Function to classify image and fetch recipes
+    // Classify the image using TFLite, then fetch recipes from Spoonacular
     @SuppressLint("SetTextI18n")
     private fun classifyAndFetchRecipes(bitmap: Bitmap) {
-        val ingredient = classifier.classify(bitmap) // Get ingredient name
-        resultTextView.text = "Detected: $ingredient" // Show detected food item
-        fetchRecipesAndDisplay(ingredient) // Fetch recipes from Spoonacular
-    }
+        // 1) Run TFLite classification
+        val ingredient = classifier.classify(bitmap)
+        Log.d(TAG, "Detected ingredient: $ingredient")
 
-    //Calls Spoonacular API and updates UI
-    @SuppressLint("SetTextI18n")
-    private fun fetchRecipesAndDisplay(ingredient: String) {
+        // 2) Fetch recipes from Spoonacular
         lifecycleScope.launch {
-            val recipes = getRecipes(ingredient)
+            val recipes = SpoonacularService.getRecipes(ingredient)
             if (recipes.isNotEmpty()) {
-                resultTextView.text = recipes.joinToString("\n") { it.title }
+                // Show results
+                val recipeTitles = recipes.joinToString("\n") { it.title }
+                resultTextView.text = "Detected: $ingredient\n\nRecipes:\n$recipeTitles"
             } else {
                 resultTextView.text = "No recipes found for $ingredient"
             }
+
+            // 3) Show the result layout, hide camera preview
+            resultLayout.visibility = View.VISIBLE
+            viewBinding.viewFinder.visibility = View.GONE
+            viewBinding.imageCaptureButton.visibility = View.GONE
         }
+    }
+
+    // Called when user taps "Retake Photo" button
+    private fun retakePhoto() {
+        // Hide result layout, show camera preview
+        resultLayout.visibility = View.GONE
+        viewBinding.viewFinder.visibility = View.VISIBLE
+        viewBinding.imageCaptureButton.visibility = View.VISIBLE
     }
 
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
-    }
-
-    fun retakePhoto(view: View) {
-        resultLayout.visibility = View.GONE
-        viewBinding.viewFinder.visibility = View.VISIBLE
-        viewBinding.imageCaptureButton.visibility = View.VISIBLE
     }
 
     companion object {
