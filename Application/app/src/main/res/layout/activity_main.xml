@@ -12,6 +12,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <Spinner
+        android:id="@+id/model_selector"
+        android:layout_width="110dp"
+        android:layout_height="80dp"
+        android:entries="@array/model_options"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+
     <!-- Button to capture a photo -->
     <Button
         android:id="@+id/image_capture_button"

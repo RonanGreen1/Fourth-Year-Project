@@ -3,6 +3,7 @@ package com.example.android_app
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,8 +14,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +26,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.android_app.api.ChatGPTService
 import com.example.android_app.api.SpoonacularService
 import com.example.android_app.databinding.ActivityMainBinding
 import com.example.android_app.ml.ImageClassifier
@@ -41,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resultLayout: LinearLayout
     private lateinit var resultTextView: TextView
     private lateinit var retakeButton: Button
+
+    private lateinit var modelSelector: Spinner  // Dropdown for selecting model
+    private var selectedModel: String = "My Model"  // Default selection
 
     // Our TFLite ImageClassifier
     private lateinit var classifier: ImageClassifier
@@ -66,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
         retakeButton = findViewById(R.id.retakeButton)
+        modelSelector = findViewById(R.id.model_selector)  // Spinner
 
         // Hide the result layout initially
         resultLayout.visibility = View.GONE
@@ -78,6 +86,18 @@ class MainActivity : AppCompatActivity() {
             startCamera()
         } else {
             requestPermissions()
+        }
+
+        // Handle model selection from Spinner
+        modelSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedModel = parent?.getItemAtPosition(position).toString()
+                Log.d(TAG, "Selected Model: $selectedModel")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                selectedModel = "My Model" // Default
+            }
         }
 
         // When "Take Photo" button is clicked
@@ -93,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         // Background executor for CameraX
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
+
 
     // Request camera permission if not granted
     private fun requestPermissions() {
@@ -157,14 +178,33 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "onImageSaved() called with URI: $savedUri")
                     if (savedUri != null) {
                         Log.d(TAG, "Image saved at: $savedUri")
-                        // Load the saved image and classify
                         val bitmap = loadBitmapFromUri(savedUri)
-                        classifyAndFetchRecipes(bitmap)
+
+                        // Check which model is selected
+                        if (selectedModel == "ChatGPT API") {
+                            sendToChatGPT(bitmap)
+                        } else {
+                            classifyAndFetchRecipes(bitmap)
+                        }
                     }
                 }
             }
         )
     }
+
+    @SuppressLint("SetTextI18n")
+    private fun sendToChatGPT(bitmap: Bitmap) {
+        ChatGPTService.recognizeImage(bitmap) { result ->
+            runOnUiThread {
+                Log.d(TAG, "ChatGPT Result: $result")
+                resultTextView.text = "ChatGPT Result: $result"
+                resultLayout.visibility = View.VISIBLE
+            }
+        }
+    }
+
+
+
 
     // Load the captured image from Uri and return a Bitmap
     private fun loadBitmapFromUri(uri: Uri): Bitmap {
