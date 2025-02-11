@@ -232,20 +232,53 @@ class MainActivity : AppCompatActivity() {
         // 2) Fetch recipes from Spoonacular
         lifecycleScope.launch {
             val recipes = SpoonacularService.getRecipes(ingredient)
-            if (recipes.isNotEmpty()) {
-                // Show results
-                val recipeTitles = recipes.joinToString("\n") { it.title }
-                resultTextView.text = "Detected: $ingredient\n\nRecipes:\n$recipeTitles"
-            } else {
-                resultTextView.text = "No recipes found for $ingredient"
-            }
+            runOnUiThread {
+                val container = findViewById<LinearLayout>(R.id.recipeButtonContainer)
+                container.removeAllViews() // Clear previous results
 
-            // 3) Show the result layout, hide camera preview
-            resultLayout.visibility = View.VISIBLE
-            viewBinding.viewFinder.visibility = View.GONE
-            viewBinding.imageCaptureButton.visibility = View.GONE
+                if (recipes.isNotEmpty()) {
+                    recipes.forEach { recipe ->
+                        val button = Button(this@MainActivity)
+                        button.text = recipe.title
+                        button.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
+                        button.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+
+                        // Set click listener to fetch full recipe details
+                        button.setOnClickListener {
+                            fetchRecipeDetails(recipe.id)
+                        }
+
+                        container.addView(button)
+                    }
+                } else {
+                    val noResults = TextView(this@MainActivity)
+                    noResults.text = "No recipes found for $ingredient"
+                    noResults.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
+                    container.addView(noResults)
+                }
+
+                resultLayout.visibility = View.VISIBLE
+            }
         }
     }
+
+    @SuppressLint("SetTextI18n")
+    private fun fetchRecipeDetails(recipeId: Int) {
+        lifecycleScope.launch {
+            val recipeDetails = SpoonacularService.getRecipeDetails(recipeId)
+            runOnUiThread {
+                if (recipeDetails != null) {
+                    resultTextView.text = "Recipe: ${recipeDetails.title}\n\nInstructions:\n${recipeDetails.instructions}"
+                } else {
+                    resultTextView.text = "Failed to load recipe details."
+                }
+                resultLayout.visibility = View.VISIBLE
+            }
+        }
+    }
+
+
+
 
     // Called when user taps "Retake Photo" button
     private fun retakePhoto() {

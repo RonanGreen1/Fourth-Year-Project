@@ -1,6 +1,7 @@
 package com.example.android_app.api
 
 import com.example.android_app.model.Recipe
+import com.example.android_app.model.RecipeDetails
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -20,6 +21,7 @@ object SpoonacularService {
         retrofit.create(SpoonacularApi::class.java)
     }
 
+
     // Function to fetch recipes from Spoonacular
     suspend fun getRecipes(ingredient: String): List<Recipe> {
         return try {
@@ -33,4 +35,14 @@ object SpoonacularService {
             emptyList()
         }
     }
+
+    suspend fun getRecipeDetails(recipeId: Int): RecipeDetails? {
+        return try {
+            api.getRecipeDetails(recipeId, API_KEY)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Base64
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 // Service for handling ChatGPT API calls
 object ChatGPTService {
-    private const val API_KEY =
+    private const val API_KEY = ""
     private const val ENDPOINT = "https://api.openai.com/v1/chat/completions"
 
     // Convert bitmap image to Base64 format
@@ -26,22 +27,27 @@ object ChatGPTService {
     fun recognizeImage(bitmap: Bitmap, callback: (String) -> Unit) {
         val base64Image = convertBitmapToBase64(bitmap)
 
-        val json = JSONObject()
-        json.put("model", "gpt-4-vision-preview")
-        json.put("messages", arrayOf(
-            JSONObject().apply {
-                put("role", "user")
-                put("content", "What is in this image?")
-            },
-            JSONObject().apply {
-                put("role", "user")
-                put("content", JSONObject().apply {
+        // Constructing the correct JSON payload
+        val messagesArray = JSONArray()
+        messagesArray.put(JSONObject().apply {
+            put("role", "user")
+            put("content", "What ingredients are in this image?")
+        })
+        messagesArray.put(JSONObject().apply {
+            put("role", "user")
+            put("content", JSONArray().apply {
+                put(JSONObject().apply {
                     put("type", "image_url")
                     put("image_url", "data:image/png;base64,$base64Image")
                 })
-            }
-        ))
-        json.put("max_tokens", 50)
+            })
+        })
+
+        val json = JSONObject().apply {
+            put("model", "gpt-4-vision-preview")
+            put("messages", messagesArray)
+            put("max_tokens", 50)
+        }
 
         val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -65,13 +71,32 @@ object ChatGPTService {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                val jsonResponse = JSONObject(responseData ?: "{}")
-                val result = jsonResponse.getJSONArray("choices")
-                    .getJSONObject(0)
-                    .getJSONObject("message")
-                    .getString("content")
+                val result = extractIngredients(responseData)
                 callback(result)
             }
         })
+    }
+
+    // Function to extract ingredients from the API response
+    private fun extractIngredients(responseData: String?): String {
+        if (responseData.isNullOrEmpty()) return "No ingredients found"
+
+        return try {
+            val jsonResponse = JSONObject(responseData)
+
+            // ✅ Ensure "choices" exist before accessing
+            if (!jsonResponse.has("choices")) return "No ingredients found"
+
+            val choicesArray = jsonResponse.getJSONArray("choices")
+            if (choicesArray.length() == 0) return "No ingredients found"
+
+            val result = choicesArray.getJSONObject(0)
+                .getJSONObject("message")
+                .getString("content")
+
+            result.ifEmpty { "No ingredients found" }
+        } catch (e: Exception) {
+            "Error parsing response: ${e.message}"
+        }
     }
 }
