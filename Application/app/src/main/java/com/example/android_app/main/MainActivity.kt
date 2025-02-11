@@ -225,42 +225,55 @@ class MainActivity : AppCompatActivity() {
     // Classify the image using TFLite, then fetch recipes from Spoonacular
     @SuppressLint("SetTextI18n")
     private fun classifyAndFetchRecipes(bitmap: Bitmap) {
-        // 1) Run TFLite classification
         val ingredient = classifier.classify(bitmap)
         Log.d(TAG, "Detected ingredient: $ingredient")
 
-        // 2) Fetch recipes from Spoonacular
         lifecycleScope.launch {
             val recipes = SpoonacularService.getRecipes(ingredient)
+            Log.d(TAG, "Fetched ${recipes.size} recipes")
+
             runOnUiThread {
                 val container = findViewById<LinearLayout>(R.id.recipeButtonContainer)
+                val resultTextView = findViewById<TextView>(R.id.resultTextView)
+
                 container.removeAllViews() // Clear previous results
 
                 if (recipes.isNotEmpty()) {
-                    recipes.forEach { recipe ->
-                        val button = Button(this@MainActivity)
-                        button.text = recipe.title
-                        button.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
-                        button.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                    resultTextView.text = "Detected: $ingredient\n\nSelect a recipe:"
+                    resultTextView.visibility = View.VISIBLE
 
-                        // Set click listener to fetch full recipe details
-                        button.setOnClickListener {
-                            fetchRecipeDetails(recipe.id)
+                    recipes.forEach { recipe ->
+                        Log.d(TAG, "Adding button for: ${recipe.title}")
+
+                        val button = Button(this@MainActivity).apply {
+                            text = recipe.title
+                            setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
+                            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                            setOnClickListener { fetchRecipeDetails(recipe.id) }
                         }
 
                         container.addView(button)
                     }
+
+                    resultLayout.visibility = View.VISIBLE
+                    container.visibility = View.VISIBLE
                 } else {
-                    val noResults = TextView(this@MainActivity)
-                    noResults.text = "No recipes found for $ingredient"
-                    noResults.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.black))
-                    container.addView(noResults)
+                    Log.d(TAG, "No recipes found.")
+
+                    resultTextView.text = "No recipes found for $ingredient"
+                    resultTextView.visibility = View.VISIBLE
+
+                    resultLayout.visibility = View.VISIBLE
+                    container.visibility = View.VISIBLE
                 }
 
-                resultLayout.visibility = View.VISIBLE
+                // 🔹 Ensure the camera preview is hidden
+                viewBinding.viewFinder.visibility = View.GONE
+                viewBinding.imageCaptureButton.visibility = View.GONE
             }
         }
     }
+
 
     @SuppressLint("SetTextI18n")
     private fun fetchRecipeDetails(recipeId: Int) {
