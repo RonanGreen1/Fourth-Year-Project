@@ -31,8 +31,6 @@ import com.example.android_app.api.SpoonacularService
 import com.example.android_app.databinding.ActivityMainBinding
 import com.example.android_app.ml.ImageClassifier
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileInputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 

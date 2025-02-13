@@ -41,7 +41,7 @@ class ImageClassifier(private val context: Context) {
     // Reads the TensorFlow Lite model file as a MappedByteBuffer
     private fun loadModelFile(): MappedByteBuffer {
         // Access the model file from the assets folder
-        val fileDescriptor = context.assets.openFd("mobilenet_food101.tflite")
+        val fileDescriptor = context.assets.openFd("mobilenet_model.tflite")
         val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
         val fileChannel = inputStream.channel
         val startOffset = fileDescriptor.startOffset
@@ -60,7 +60,7 @@ class ImageClassifier(private val context: Context) {
         val byteBuffer = convertBitmapToByteBuffer(scaledBitmap)
 
         // Prepare the output buffer to hold model predictions
-        val output = Array(1) { FloatArray(101) }
+        val output = Array(1) { FloatArray(1000) }
 
         // Run inference using the model
         interpreter.run(byteBuffer, output)
