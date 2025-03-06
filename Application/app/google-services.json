@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1036931945883",
+    "project_id": "easychef-a39e6",
+    "storage_bucket": "easychef-a39e6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036931945883:android:8e0c25759c1e7f501cfd3e",
+        "android_client_info": {
+          "package_name": "com.example.android_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSMk2J8ANPEDazAPc_3nJqOa0N0n-Uqrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

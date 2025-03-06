@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -33,6 +34,7 @@ import com.example.android_app.ml.ImageClassifier
 import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,6 +48,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var modelSelector: Spinner  // Dropdown for selecting model
     private var selectedModel: String = "My Model"  // Default selection
+
+    // Login overlay views
+    private lateinit var loginOverlay: View
+    private lateinit var loginUsername: EditText
+    private lateinit var loginPassword: EditText
+    private lateinit var loginButton: Button
+
+    // Firestore instance for login
+    private val db = FirebaseFirestore.getInstance()
 
     // Our TFLite ImageClassifier
     private lateinit var classifier: ImageClassifier
@@ -67,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
-        // Assign layout references
+        // Assign layout references for camera/recipe functionality
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
         retakeButton = findViewById(R.id.retakeButton)
@@ -75,6 +86,23 @@ class MainActivity : AppCompatActivity() {
 
         // Hide the result layout initially
         resultLayout.visibility = View.GONE
+
+        // Assign login overlay views (make sure these IDs exist in your XML)
+        loginOverlay = findViewById(R.id.login_overlay)
+        loginUsername = findViewById(R.id.login_username)
+        loginPassword = findViewById(R.id.login_password)
+        loginButton = findViewById(R.id.login_button)
+
+        // Set click listener for login button
+        loginButton.setOnClickListener {
+            val username = loginUsername.text.toString().trim()
+            val password = loginPassword.text.toString().trim()
+            if (username.isNotEmpty() && password.isNotEmpty()) {
+                performLogin(username, password)
+            } else {
+                Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Create our classifier (loads TFLite model)
         classifier = ImageClassifier(this)
@@ -145,6 +173,32 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, "startCamera: Use case binding failed.", e)
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    // Perform login by checking Firestore for matching username and password
+    private fun performLogin(username: String, password: String) {
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val doc = documents.documents[0]
+                    val storedPassword = doc.getString("password")
+                    if (storedPassword == password) {
+                        // Login successful: hide the login overlay
+                        loginOverlay.visibility = View.GONE
+                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Login error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     // Capture a photo
