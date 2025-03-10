@@ -1,3 +1,5 @@
+
+
 plugins {
     alias(libs.plugins.android.application) // Applies the Android application plugin
     alias(libs.plugins.kotlin.android) // Applies the Kotlin plugin for Android
@@ -82,5 +84,11 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    // Guava library (the real one, which includes ListenableFuture)
+    implementation(libs.guava.android)
+
+    // Firebase Firestore, excluding any conflicting Guava artifact
+    implementation(libs.firebase.firestore.ktx)
 
 }

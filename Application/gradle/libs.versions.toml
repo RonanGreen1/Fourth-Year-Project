@@ -17,7 +17,8 @@ tensorflowLiteSupport = "0.3.1"
 retrofit = "2.9.0"
 gson = "2.9.0"
 okhttpVersion = "4.9.1"
-
+guavaAndroid = "32.1.2-android"
+firebaseFirestoreKtx = "25.1.2"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraxVersion" }
@@ -47,7 +48,8 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttpVersion" }
-
+guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
+firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
