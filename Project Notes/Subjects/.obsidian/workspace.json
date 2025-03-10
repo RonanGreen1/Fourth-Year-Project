@@ -44,7 +44,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project/Project Prep/Technologies.md",
+                "file": "App/Technologies.md",
                 "mode": "source",
                 "source": false
               },
@@ -72,7 +72,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -196,8 +197,8 @@
   },
   "active": "c2434ae9defc1fd6",
   "lastOpenFiles": [
-    "App/Technologies.md",
     "Project/Project Prep/Technologies.md",
+    "App/Technologies.md",
     "Project/Project Prep/Project Selection.md",
     "App/App Layout.canvas",
     "App",

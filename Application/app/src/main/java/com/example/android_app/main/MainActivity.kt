@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
-        // Assign layout references
+        // Assign layout references for camera/recipe functionality
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
         retakeButton = findViewById(R.id.retakeButton)
