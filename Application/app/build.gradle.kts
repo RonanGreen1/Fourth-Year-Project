@@ -6,12 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.compose) // Enables Jetpack Compose support
 }
 
-buildscript {
-    dependencies {
-        classpath(libs.google.services)
-    }
-}
-
 android {
     namespace = "com.example.android_app" // Specifies the app's namespace, used for generated R classes
     compileSdk = 35 // Set the SDK level to compile against
