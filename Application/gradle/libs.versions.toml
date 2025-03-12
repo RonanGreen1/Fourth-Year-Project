@@ -18,6 +18,7 @@ retrofit = "2.9.0"
 gson = "2.9.0"
 okhttpVersion = "4.9.1"
 guavaAndroid = "32.1.2-android"
+google = "4.3.15"
 
 
 [libraries]
@@ -55,4 +56,5 @@ firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx"
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google" }
 

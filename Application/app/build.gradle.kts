@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application) // Applies the Android application plugin
     alias(libs.plugins.kotlin.android) // Applies the Kotlin plugin for Android
     alias(libs.plugins.kotlin.compose) // Enables Jetpack Compose support
+    alias(libs.plugins.google.services)        // Google Services plugin for Firebase
 }
 
 android {
