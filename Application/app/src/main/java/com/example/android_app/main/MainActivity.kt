@@ -3,7 +3,6 @@ package com.example.android_app
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -35,6 +34,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import com.google.firebase.firestore.FirebaseFirestore
+import android.content.Intent // Used to switch between activities (screens)
+import android.view.Menu // Required to create the options menu
+import android.view.MenuItem // Handles menu item selection
+import com.example.android_app.data.ShoppingListRepo
 
 class MainActivity : AppCompatActivity() {
 
@@ -368,5 +371,24 @@ class MainActivity : AppCompatActivity() {
                 add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }.toTypedArray()
+    }
+
+    // Inflate the menu (loads res/menu/main_menu.xml)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu) // Load the menu from XML
+        return true // Return true to display the menu
+    }
+
+    // Handle menu item clicks
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            // When "Shopping List" is selected, open ShoppingListActivity
+            R.id.nav_shopping_list -> {
+                val intent = Intent(this, ShoppingListRepo::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item) // Handle other menu items normally
+        }
     }
 }
