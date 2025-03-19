@@ -38,6 +38,7 @@ import android.content.Intent // Used to switch between activities (screens)
 import android.view.Menu // Required to create the options menu
 import android.view.MenuItem // Handles menu item selection
 import com.example.android_app.data.ShoppingListRepo
+import com.example.android_app.ui.ShoppingListActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -81,6 +82,8 @@ class MainActivity : AppCompatActivity() {
         // Inflate layout
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+
+        supportActionBar?.hide()
 
         // Assign layout references for camera/recipe functionality
         resultLayout = findViewById(R.id.resultLayout)
@@ -193,6 +196,7 @@ class MainActivity : AppCompatActivity() {
                         // Login successful: hide the login overlay
                         loginOverlay.visibility = View.GONE
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                        supportActionBar?.show()
                     } else {
                         Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
                     }
@@ -384,7 +388,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             // When "Shopping List" is selected, open ShoppingListActivity
             R.id.nav_shopping_list -> {
-                val intent = Intent(this, ShoppingListRepo::class.java)
+                val intent = Intent(this, ShoppingListActivity::class.java)
                 startActivity(intent)
                 true
             }

@@ -5,6 +5,7 @@
     <string name="stop_capture">Stop Capture</string>
     <string name="retake_photo">Retake Photo</string>
     <string name="shopping_list">Shopping List</string>
+    <string name="shopping_list_page">Shopping List Page</string>
     <string-array name="model_options">
         <item>My Model</item>
         <item>ChatGPT API</item>
