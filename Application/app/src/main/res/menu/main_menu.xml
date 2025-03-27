@@ -8,4 +8,12 @@
         android:title="@string/shopping_list"
         android:icon="@drawable/ic_shopping_cart"
         app:showAsAction="never" />
+
+    <!-- Menu item for the Camera -->
+    <item
+        android:id="@+id/nav_camera"
+        android:title="@string/camera"
+        android:orderInCategory="2"
+        app:showAsAction="never" />
+
 </menu>

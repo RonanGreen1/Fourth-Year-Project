@@ -37,8 +37,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import android.content.Intent // Used to switch between activities (screens)
 import android.view.Menu // Required to create the options menu
 import android.view.MenuItem // Handles menu item selection
-import com.example.android_app.data.ShoppingListRepo
 import com.example.android_app.ui.ShoppingListActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
@@ -195,6 +195,10 @@ class MainActivity : AppCompatActivity() {
                     if (storedPassword == password) {
                         // Login successful: hide the login overlay
                         loginOverlay.visibility = View.GONE
+                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        val userId = currentUser?.uid
+                        val intent = Intent(this, ShoppingListActivity::class.java)
+                        intent.putExtra("USER_ID_KEY", userId)
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
                         supportActionBar?.show()
                     } else {

@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.firebase.auth.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)
@@ -91,5 +93,7 @@ dependencies {
 
     // Firebase Firestore, excluding any conflicting Guava artifact
     implementation(libs.firebase.firestore.ktx)
+
+
 
 }
