@@ -6,6 +6,7 @@
     <string name="retake_photo">Retake Photo</string>
     <string name="shopping_list">Shopping List</string>
     <string name="shopping_list_page">Shopping List Page</string>
+    <string name="add_new_item">Add new item</string>
     <string name="camera">Camera</string>
     <string-array name="model_options">
         <item>My Model</item>

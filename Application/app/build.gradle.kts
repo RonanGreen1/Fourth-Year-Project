@@ -94,6 +94,8 @@ dependencies {
     // Firebase Firestore, excluding any conflicting Guava artifact
     implementation(libs.firebase.firestore.ktx)
 
+    implementation(libs.google.material)
+
 
 
 }
