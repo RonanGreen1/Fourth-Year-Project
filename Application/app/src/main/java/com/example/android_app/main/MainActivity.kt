@@ -77,6 +77,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private lateinit var manualIngredientInput: EditText
+    private lateinit var addIngredientButton: Button
+    private lateinit var currentIngredientsText: TextView
+    private lateinit var searchRecipesButton: Button
+
+    // List to store multiple ingredients
+    private val ingredientsList = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Inflate layout
@@ -99,6 +107,11 @@ class MainActivity : AppCompatActivity() {
         loginUsername = findViewById(R.id.login_username)
         loginPassword = findViewById(R.id.login_password)
         loginButton = findViewById(R.id.login_button)
+
+        manualIngredientInput = findViewById(R.id.manualIngredientInput)
+        addIngredientButton = findViewById(R.id.addIngredientButton)
+        currentIngredientsText = findViewById(R.id.currentIngredientsText)
+        searchRecipesButton = findViewById(R.id.searchRecipesButton)
 
         // Set click listener for login button
         loginButton.setOnClickListener {
@@ -143,9 +156,31 @@ class MainActivity : AppCompatActivity() {
             retakePhoto()
         }
 
+        // Set click listener for add ingredient button
+        addIngredientButton.setOnClickListener {
+            val ingredient = manualIngredientInput.text.toString().trim()
+            if (ingredient.isNotEmpty()) {
+                addIngredient(ingredient)
+                manualIngredientInput.text.clear()
+            } else {
+                Toast.makeText(this, "Please enter an ingredient", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Set click listener for search recipes button
+        searchRecipesButton.setOnClickListener {
+            if (ingredientsList.isNotEmpty()) {
+                fetchRecipesForIngredients()
+            } else {
+                Toast.makeText(this, "Please add at least one ingredient", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         // Background executor for CameraX
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
+
+
 
 
     // Request camera permission if not granted
@@ -243,13 +278,8 @@ class MainActivity : AppCompatActivity() {
                     if (savedUri != null) {
                         Log.d(TAG, "Image saved at: $savedUri")
                         val bitmap = loadBitmapFromUri(savedUri)
+                        classifyAndAddIngredient(bitmap)
 
-                        // Check which model is selected
-                        if (selectedModel == "ChatGPT API") {
-                            sendToChatGPT(bitmap)
-                        } else {
-                            classifyAndFetchRecipes(bitmap)
-                        }
                     }
                 }
             }
@@ -345,16 +375,173 @@ class MainActivity : AppCompatActivity() {
             val recipeDetails = SpoonacularService.getRecipeDetails(recipeId)
             runOnUiThread {
                 if (recipeDetails != null) {
-                    resultTextView.text = "Recipe: ${recipeDetails.title}\n\nInstructions:\n${recipeDetails.instructions}"
+                    // Create a ScrollView programmatically for the recipe details
+                    val container = findViewById<LinearLayout>(R.id.recipeButtonContainer)
+                    container.removeAllViews() // Clear previous content
+
+                    // Create formatted content view
+                    val detailsView = LinearLayout(this@MainActivity).apply {
+                        orientation = LinearLayout.VERTICAL
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        setPadding(16, 16, 16, 16)
+                    }
+
+                    // Title
+                    val titleView = TextView(this@MainActivity).apply {
+                        text = recipeDetails.title
+                        textSize = 24f
+                        setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
+                        setPadding(0, 0, 0, 16)
+                    }
+                    detailsView.addView(titleView)
+
+                    // Instructions header
+                    val instructionsHeader = TextView(this@MainActivity).apply {
+                        text = "Instructions:"
+                        textSize = 18f
+                        setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
+                        setPadding(0, 16, 0, 8)
+                    }
+                    detailsView.addView(instructionsHeader)
+
+                    // Instructions
+                    val instructionsView = TextView(this@MainActivity).apply {
+                        text = recipeDetails.instructions
+                        textSize = 16f
+                        setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
+                        setPadding(0, 8, 0, 16)
+                    }
+                    detailsView.addView(instructionsView)
+
+                    // Add button to save ingredients to shopping list (optional feature)
+                    val saveButton = Button(this@MainActivity).apply {
+                        text = "Save Ingredients to Shopping List"
+                        setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        setPadding(16, 8, 16, 8)
+                        // You would implement this functionality separately
+                    }
+                    detailsView.addView(saveButton)
+
+                    // Add the detailed view to the container
+                    container.addView(detailsView)
+
+                    // Update the result text to just show the heading
+                    resultTextView.text = "Recipe Details"
+
+                    // Show the result layout with scroll capability
+                    resultLayout.visibility = View.VISIBLE
                 } else {
                     resultTextView.text = "Failed to load recipe details."
+                    resultLayout.visibility = View.VISIBLE
                 }
-                resultLayout.visibility = View.VISIBLE
             }
         }
     }
 
 
+    private fun addIngredient(ingredient: String) {
+        ingredientsList.add(ingredient)
+        updateIngredientsDisplay()
+
+        // Show the search button once we have at least one ingredient
+        if (ingredientsList.size == 1) {
+            searchRecipesButton.visibility = View.VISIBLE
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateIngredientsDisplay() {
+        if (ingredientsList.isEmpty()) {
+            currentIngredientsText.visibility = View.GONE
+            searchRecipesButton.visibility = View.GONE
+        } else {
+            currentIngredientsText.text = "Current ingredients: ${ingredientsList.joinToString(", ")}"
+            currentIngredientsText.visibility = View.VISIBLE
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun classifyAndAddIngredient(bitmap: Bitmap) {
+        val ingredient = classifier.classify(bitmap)
+        Log.d(TAG, "Detected ingredient: $ingredient")
+
+        runOnUiThread {
+            Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
+            addIngredient(ingredient)
+
+            // Hide the camera view, show the ingredients list
+            viewBinding.viewFinder.visibility = View.GONE
+            viewBinding.imageCaptureButton.visibility = View.GONE
+
+            // Ask if user wants to add more ingredients
+            val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+            builder.setTitle("Add more ingredients?")
+                .setMessage("Would you like to add more ingredients or search for recipes now?")
+                .setPositiveButton("Add more") { _, _ ->
+                    retakePhoto()
+                }
+                .setNegativeButton("Search recipes") { _, _ ->
+                    fetchRecipesForIngredients()
+                }
+                .show()
+        }
+    }
+
+    private fun fetchRecipesForIngredients() {
+        // Join all ingredients with a comma for the API
+        val ingredientsString = ingredientsList.joinToString(",")
+
+        lifecycleScope.launch {
+            val recipes = SpoonacularService.getRecipes(ingredientsString)
+            Log.d(TAG, "Fetched ${recipes.size} recipes for ingredients: $ingredientsString")
+
+            runOnUiThread {
+                val container = findViewById<LinearLayout>(R.id.recipeButtonContainer)
+                val resultTextView = findViewById<TextView>(R.id.resultTextView)
+
+                container.removeAllViews() // Clear previous results
+
+                if (recipes.isNotEmpty()) {
+                    resultTextView.text = "Ingredients: ${ingredientsList.joinToString(", ")}\n\nSelect a recipe:"
+                    resultTextView.visibility = View.VISIBLE
+
+                    recipes.forEach { recipe ->
+                        Log.d(TAG, "Adding button for: ${recipe.title}")
+
+                        val button = Button(this@MainActivity).apply {
+                            text = recipe.title
+                            setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
+                            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                            setOnClickListener { fetchRecipeDetails(recipe.id) }
+                        }
+
+                        container.addView(button)
+                    }
+
+                    resultLayout.visibility = View.VISIBLE
+                    container.visibility = View.VISIBLE
+                } else {
+                    Log.d(TAG, "No recipes found.")
+
+                    resultTextView.text = "No recipes found for ${ingredientsList.joinToString(", ")}"
+                    resultTextView.visibility = View.VISIBLE
+
+                    resultLayout.visibility = View.VISIBLE
+                    container.visibility = View.VISIBLE
+                }
+
+                // Hide the camera preview
+                viewBinding.viewFinder.visibility = View.GONE
+                viewBinding.imageCaptureButton.visibility = View.GONE
+            }
+        }
+    }
 
 
     // Called when user taps "Retake Photo" button

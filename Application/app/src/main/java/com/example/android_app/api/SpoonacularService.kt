@@ -22,11 +22,12 @@ object SpoonacularService {
     }
 
 
-    // Function to fetch recipes from Spoonacular
-    suspend fun getRecipes(ingredient: String): List<Recipe> {
+
+    // Function to fetch recipes from Spoonacular with multiple ingredients
+    suspend fun getRecipes(ingredients: String): List<Recipe> {
         return try {
             api.searchRecipesByIngredient(
-                ingredient = ingredient,
+                ingredient = ingredients,
                 number = 5,
                 apiKey = API_KEY
             )
