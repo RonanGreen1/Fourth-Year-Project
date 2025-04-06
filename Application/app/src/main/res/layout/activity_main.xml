@@ -99,6 +99,18 @@
             app:layout_constraintBottom_toTopOf="@id/inputLayout"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <Button
+            android:id="@+id/clearIngredientsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear All"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/inputLayout"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <LinearLayout
             android:id="@+id/resultLayout"
             android:layout_width="0dp"

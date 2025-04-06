@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addIngredientButton: Button
     private lateinit var currentIngredientsText: TextView
     private lateinit var searchRecipesButton: Button
+    private lateinit var clearIngredientsButton: Button
 
     // List to store multiple ingredients
     private val ingredientsList = mutableListOf<String>()
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         retakeButton = findViewById(R.id.retakeButton)
         modelSelector = findViewById(R.id.model_selector)  // Spinner
 
+
         // Hide the result layout initially
         resultLayout.visibility = View.GONE
 
@@ -112,6 +114,8 @@ class MainActivity : AppCompatActivity() {
         addIngredientButton = findViewById(R.id.addIngredientButton)
         currentIngredientsText = findViewById(R.id.currentIngredientsText)
         searchRecipesButton = findViewById(R.id.searchRecipesButton)
+
+        clearIngredientsButton = findViewById(R.id.clearIngredientsButton)
 
         // Set click listener for login button
         loginButton.setOnClickListener {
@@ -174,6 +178,13 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please add at least one ingredient", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // Add click listener for clear button
+        clearIngredientsButton.setOnClickListener {
+            ingredientsList.clear()
+            updateIngredientsDisplay()
+            Toast.makeText(this, "All ingredients cleared", Toast.LENGTH_SHORT).show()
         }
 
         // Background executor for CameraX
@@ -407,12 +418,14 @@ class MainActivity : AppCompatActivity() {
         if (ingredientsList.isEmpty()) {
             currentIngredientsText.visibility = View.GONE
             searchRecipesButton.visibility = View.GONE
+            clearIngredientsButton.visibility = View.GONE
         } else {
             currentIngredientsText.text = "Current ingredients: ${ingredientsList.joinToString(", ")}"
             currentIngredientsText.visibility = View.VISIBLE
+            searchRecipesButton.visibility = View.VISIBLE
+            clearIngredientsButton.visibility = View.VISIBLE
         }
     }
-
     @SuppressLint("SetTextI18n")
     private fun classifyAndAddIngredient(bitmap: Bitmap) {
         val ingredient = classifier.classify(bitmap)
