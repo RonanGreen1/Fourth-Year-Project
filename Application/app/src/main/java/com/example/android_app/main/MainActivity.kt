@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
         retakeButton = findViewById(R.id.retakeButton)
-        modelSelector = findViewById(R.id.model_selector)  // Spinner
+        //modelSelector = findViewById(R.id.model_selector)  // Spinner
 
 
         // Hide the result layout initially
@@ -139,16 +139,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Handle model selection from Spinner
-        modelSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedModel = parent?.getItemAtPosition(position).toString()
-                Log.d(TAG, "Selected Model: $selectedModel")
-            }
+        //modelSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        //    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        //        selectedModel = parent?.getItemAtPosition(position).toString()
+        //        Log.d(TAG, "Selected Model: $selectedModel")
+        //    }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                selectedModel = "My Model" // Default
-            }
-        }
+        //    override fun onNothingSelected(parent: AdapterView<*>?) {
+        //        selectedModel = "My Model" // Default
+        //    }
+        //}
 
         // When "Take Photo" button is clicked
         viewBinding.imageCaptureButton.setOnClickListener {
