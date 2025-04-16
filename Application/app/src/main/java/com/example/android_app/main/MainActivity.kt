@@ -3,6 +3,7 @@ package com.example.android_app
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loginUsername: EditText
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
+    private lateinit var logoutButton: Button
 
     // Firestore instance for login
     private val db = FirebaseFirestore.getInstance()
@@ -109,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         loginUsername = findViewById(R.id.login_username)
         loginPassword = findViewById(R.id.login_password)
         loginButton = findViewById(R.id.login_button)
+        logoutButton = findViewById(R.id.logoutButton)
 
         manualIngredientInput = findViewById(R.id.manualIngredientInput)
         addIngredientButton = findViewById(R.id.addIngredientButton)
@@ -126,6 +129,10 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        logoutButton.setOnClickListener {
+            performLogout()
         }
 
         // Create our classifier (loads TFLite model)
@@ -228,6 +235,29 @@ class MainActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        // Check the saved login state when the activity starts/resumes
+        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE)
+        val isLoggedIn = sharedPref.getBoolean("IS_LOGGED_IN", false) // Default to false
+
+        if (isLoggedIn) {
+            // User was previously logged in (in this session)
+            Log.d(TAG, "User is logged in (from SharedPreferences), hiding overlay.")
+            loginOverlay.visibility = View.GONE
+            supportActionBar?.show() // Ensure action bar is shown if logged in
+            logoutButton.visibility = View.VISIBLE
+        } else {
+            // User is not logged in
+            Log.d(TAG, "User is NOT logged in (from SharedPreferences), showing overlay.")
+            loginOverlay.visibility = View.VISIBLE
+            supportActionBar?.hide() // Hide action bar if not logged in
+            logoutButton.visibility = View.GONE
+        }
+
+    }
+
     // Perform login by checking Firestore for matching username and password
     private fun performLogin(username: String, password: String) {
         db.collection("users")
@@ -245,8 +275,16 @@ class MainActivity : AppCompatActivity() {
                         val userId = currentUser?.uid
                         val intent = Intent(this, ShoppingListActivity::class.java)
                         intent.putExtra("USER_ID_KEY", userId)
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE) ?: return@addOnSuccessListener
+                        with(sharedPref.edit()) {
+                            putBoolean("IS_LOGGED_IN", true)
+                            apply() // Apply asynchronously
+                        }
+                        loginOverlay.visibility = View.GONE
                         supportActionBar?.show()
+                        logoutButton.visibility = View.VISIBLE
+                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+
                     } else {
                         Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
                     }
@@ -258,6 +296,25 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Login error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+    private fun performLogout() {
+        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putBoolean("IS_LOGGED_IN", false)
+           // Clear stored user ID if you added it
+            apply()
+        }
+
+        FirebaseAuth.getInstance().signOut()
+
+        loginOverlay.visibility = View.VISIBLE
+        supportActionBar?.hide()
+        logoutButton.visibility = View.GONE
+        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show()
+
+    }
+
+
 
     // Capture a photo
     private fun takePhoto() {
