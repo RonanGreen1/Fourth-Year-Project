@@ -27,7 +27,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.android_app.api.ChatGPTService
+import com.example.android_app.api.GeminiService
 import com.example.android_app.api.SpoonacularService
 import com.example.android_app.databinding.ActivityMainBinding
 import com.example.android_app.ml.ImageClassifier
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         resultLayout = findViewById(R.id.resultLayout)
         resultTextView = findViewById(R.id.resultTextView)
         retakeButton = findViewById(R.id.retakeButton)
-        //modelSelector = findViewById(R.id.model_selector)  // Spinner
+        modelSelector = findViewById(R.id.model_selector)  // Spinner
 
 
         // Hide the result layout initially
@@ -146,16 +146,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Handle model selection from Spinner
-        //modelSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        //    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        //        selectedModel = parent?.getItemAtPosition(position).toString()
-        //        Log.d(TAG, "Selected Model: $selectedModel")
-        //    }
+        modelSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedModel = parent?.getItemAtPosition(position).toString()
+                Log.d(TAG, "Selected Model: $selectedModel")
+            }
 
-        //    override fun onNothingSelected(parent: AdapterView<*>?) {
-        //        selectedModel = "My Model" // Default
-        //    }
-        //}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                selectedModel = "My Model" // Default
+            }
+        }
 
         // When "Take Photo" button is clicked
         viewBinding.imageCaptureButton.setOnClickListener {
@@ -346,7 +346,15 @@ class MainActivity : AppCompatActivity() {
                     if (savedUri != null) {
                         Log.d(TAG, "Image saved at: $savedUri")
                         val bitmap = loadBitmapFromUri(savedUri)
-                        classifyAndAddIngredient(bitmap)
+                        runOnUiThread { // Ensure model check runs on main thread safely
+                            if (selectedModel == "Gemini") {
+                                Log.d(TAG, "Using Gemini model for classification")
+                                identifyIngredientWithGemini(bitmap) // Call new Gemini function
+                            } else { // Default to "My Model"
+                                Log.d(TAG, "Using local TF Lite model for classification")
+                                classifyAndAddIngredient(bitmap) // Call existing TF Lite function
+                            }
+                        }
 
                     }
                 }
@@ -354,17 +362,39 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun sendToChatGPT(bitmap: Bitmap) {
-        ChatGPTService.recognizeImage(bitmap) { result ->
+    private fun identifyIngredientWithGemini(bitmap: Bitmap) {
+        Log.d(TAG, "Sending image to Gemini...")
+        Toast.makeText(this, "Identifying with Gemini...", Toast.LENGTH_SHORT).show() // User feedback
+
+        GeminiService.recognizeImageWithGemini(bitmap) { ingredientResult ->
+            // Ensure UI updates happen on the main thread
             runOnUiThread {
-                Log.d(TAG, "ChatGPT Result: $result")
-                resultTextView.text = "ChatGPT Result: $result"
-                resultLayout.visibility = View.VISIBLE
+                Log.d(TAG, "Received from Gemini: $ingredientResult")
+
+                // Handle the result
+                when (ingredientResult) {
+                    "not recognised" -> {
+                        Toast.makeText(this, "Gemini could not recognise an ingredient.", Toast.LENGTH_SHORT).show()
+                        retakePhoto() // Allow user to try again
+                    }
+                    "blocked" -> {
+                        Toast.makeText(this, "Request blocked by Gemini safety filters.", Toast.LENGTH_LONG).show()
+                        retakePhoto() // Allow user to try again
+                    }
+                    else -> {
+                        // Add the ingredient
+                        Toast.makeText(this, "Gemini detected: $ingredientResult", Toast.LENGTH_SHORT).show()
+                        addIngredient(ingredientResult) 
+
+                        // Hide camera, show ingredients list & prompt
+                        viewBinding.viewFinder.visibility = View.GONE
+                        viewBinding.imageCaptureButton.visibility = View.GONE
+                        promptForNextActionAfterDetection(ingredientResult) // Call the refactored prompt
+                    }
+                }
             }
         }
     }
-
 
 
 
@@ -488,24 +518,37 @@ class MainActivity : AppCompatActivity() {
         val ingredient = classifier.classify(bitmap)
         Log.d(TAG, "Detected ingredient: $ingredient")
 
+        runOnUiThread { // Ensure UI updates are on the main thread
+            if (ingredient != "Unknown" && ingredient.isNotEmpty()) { // Added check for empty string
+                Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
+                addIngredient(ingredient)
+
+                // Hide the camera view, show the ingredients list
+                viewBinding.viewFinder.visibility = View.GONE
+                viewBinding.imageCaptureButton.visibility = View.GONE
+
+                // Call the common prompt function
+                promptForNextActionAfterDetection(ingredient)
+            } else {
+                Toast.makeText(this, "Could not recognise an ingredient.", Toast.LENGTH_SHORT).show()
+                retakePhoto()
+            }
+        }
+    }
+
+    private fun promptForNextActionAfterDetection(detectedIngredient: String) {
+        // Ensure this runs on the main thread if called from a background callback
         runOnUiThread {
-            Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
-            addIngredient(ingredient)
-
-            // Hide the camera view, show the ingredients list
-            viewBinding.viewFinder.visibility = View.GONE
-            viewBinding.imageCaptureButton.visibility = View.GONE
-
-            // Ask if user wants to add more ingredients
             val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-            builder.setTitle("Add more ingredients?")
-                .setMessage("Would you like to add more ingredients or search for recipes now?")
+            builder.setTitle("Ingredient Added: $detectedIngredient")
+                .setMessage("Add more ingredients or search recipes?")
                 .setPositiveButton("Add more") { _, _ ->
-                    retakePhoto()
+                    retakePhoto() // Go back to camera view
                 }
                 .setNegativeButton("Search recipes") { _, _ ->
-                    fetchRecipesForIngredients()
+                    fetchRecipesForIngredients() // Search with current list
                 }
+                .setCancelable(false) // Prevent dismissing without choosing
                 .show()
         }
     }

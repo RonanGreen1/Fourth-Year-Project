@@ -10,6 +10,6 @@
     <string name="camera">Camera</string>
     <string-array name="model_options">
         <item>My Model</item>
-        <item>ChatGPT API</item>
+        <item>Gemini</item>
     </string-array>
 </resources>
