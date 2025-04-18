@@ -188,6 +188,7 @@ class ShoppingListActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        menu?.findItem(R.id.nav_shopping_list)?.isVisible = false
         return true
     }
 
@@ -200,7 +201,8 @@ class ShoppingListActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
-            R.id.nav_shopping_list -> {
+            R.id.nav_saved_recipes -> {
+                startActivity(Intent(this, SavedRecipeActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)

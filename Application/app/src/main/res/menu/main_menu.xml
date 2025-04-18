@@ -16,4 +16,10 @@
         android:orderInCategory="2"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/nav_saved_recipes"
+        android:icon="@drawable/ic_bookmark"
+        android:title="Saved Recipes"
+        app:showAsAction="never" />
+
 </menu>

@@ -157,6 +157,19 @@
                 android:background="@drawable/rounded_button"
                 android:textColor="@color/white" />
 
+            <Button
+                android:id="@+id/buttonSaveRecipe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Recipe"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/primary_blue"
+                android:textColor="@color/white"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"/>
+
             <!-- Container for displaying recipes -->
             <ScrollView
                 android:layout_width="match_parent"

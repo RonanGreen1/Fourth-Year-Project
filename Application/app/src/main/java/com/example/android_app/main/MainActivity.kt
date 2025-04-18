@@ -1,5 +1,6 @@
 package com.example.android_app
 
+import ShoppingListRepo
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
@@ -38,7 +39,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import android.content.Intent // Used to switch between activities (screens)
 import android.view.Menu // Required to create the options menu
 import android.view.MenuItem // Handles menu item selection
+import com.example.android_app.ui.SavedRecipeActivity
 import com.example.android_app.ui.ShoppingListActivity
+import SavedRecipesRepo
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -84,6 +87,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var currentIngredientsText: TextView
     private lateinit var searchRecipesButton: Button
     private lateinit var clearIngredientsButton: Button
+    private lateinit var saveButton: Button
+
 
     // List to store multiple ingredients
     private val ingredientsList = mutableListOf<String>()
@@ -117,6 +122,11 @@ class MainActivity : AppCompatActivity() {
         addIngredientButton = findViewById(R.id.addIngredientButton)
         currentIngredientsText = findViewById(R.id.currentIngredientsText)
         searchRecipesButton = findViewById(R.id.searchRecipesButton)
+
+        saveButton = findViewById(R.id.buttonSaveRecipe)
+        saveButton.visibility = View.GONE
+
+
 
         clearIngredientsButton = findViewById(R.id.clearIngredientsButton)
 
@@ -384,7 +394,7 @@ class MainActivity : AppCompatActivity() {
                     else -> {
                         // Add the ingredient
                         Toast.makeText(this, "Gemini detected: $ingredientResult", Toast.LENGTH_SHORT).show()
-                        addIngredient(ingredientResult) 
+                        addIngredient(ingredientResult)
 
                         // Hide camera, show ingredients list & prompt
                         viewBinding.viewFinder.visibility = View.GONE
@@ -463,18 +473,35 @@ class MainActivity : AppCompatActivity() {
                     }
                     detailsView.addView(instructionsView)
 
-                    // Add button to save ingredients to shopping list (optional feature)
-                    val saveButton = Button(this@MainActivity).apply {
-                        text = "Save Ingredients to Shopping List"
-                        setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary_blue))
-                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
-                        setPadding(16, 8, 16, 8)
-                        // You would implement this functionality separately
-                    }
-                    detailsView.addView(saveButton)
-
-                    // Add the detailed view to the container
                     container.addView(detailsView)
+
+                    saveButton.visibility = View.VISIBLE
+
+                    saveButton.setOnClickListener {
+                        //val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+                        val userId = "testuser"
+
+                        SavedRecipesRepo().saveRecipeId(userId, recipeDetails.id) { success ->
+                            runOnUiThread {
+                                if (success) {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Recipe saved!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    // navigate to saved list
+                                    startActivity(Intent(this@MainActivity, SavedRecipeActivity::class.java))
+                                } else {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Couldn’t save recipe.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
 
                     // Update the result text to just show the heading
                     resultTextView.text = "Recipe Details"
@@ -610,6 +637,7 @@ class MainActivity : AppCompatActivity() {
         resultLayout.visibility = View.GONE
         viewBinding.viewFinder.visibility = View.VISIBLE
         viewBinding.imageCaptureButton.visibility = View.VISIBLE
+        saveButton.visibility = View.GONE
     }
 
     override fun onDestroy() {
@@ -631,6 +659,7 @@ class MainActivity : AppCompatActivity() {
     // Inflate the menu (loads res/menu/main_menu.xml)
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu) // Load the menu from XML
+        menu?.findItem(R.id.nav_camera)?.isVisible = false
         return true // Return true to display the menu
     }
 
@@ -641,6 +670,10 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_shopping_list -> {
                 val intent = Intent(this, ShoppingListActivity::class.java)
                 startActivity(intent)
+                true
+            }
+            R.id.nav_saved_recipes -> {
+                startActivity(Intent(this, SavedRecipeActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item) // Handle other menu items normally

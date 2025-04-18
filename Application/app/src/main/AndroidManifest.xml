@@ -36,6 +36,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ShoppingListActivity" />
+        <activity android:name=".ui.SavedRecipeActivity" />
     </application>
 
 </manifest>
