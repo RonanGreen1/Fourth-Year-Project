@@ -24,11 +24,12 @@ object SpoonacularService {
 
 
     // Function to fetch recipes from Spoonacular with multiple ingredients
-    suspend fun getRecipes(ingredients: String): List<Recipe> {
+    suspend fun getRecipes(ingredients: String, ranking: Int = 1): List<Recipe> {
         return try {
             api.searchRecipesByIngredient(
                 ingredient = ingredients,
-                number = 5,
+                number = 10,
+                ranking = ranking,
                 apiKey = API_KEY
             )
         } catch (e: Exception) {

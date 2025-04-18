@@ -42,6 +42,7 @@ import android.view.MenuItem // Handles menu item selection
 import com.example.android_app.ui.SavedRecipeActivity
 import com.example.android_app.ui.ShoppingListActivity
 import SavedRecipesRepo
+import android.graphics.Typeface
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -453,6 +454,40 @@ class MainActivity : AppCompatActivity() {
                         setPadding(0, 0, 0, 16)
                     }
                     detailsView.addView(titleView)
+
+                    if (!recipeDetails.extendedIngredients.isNullOrEmpty()) {
+                        // Add Ingredients Header
+                        val ingredientsHeader = TextView(this@MainActivity).apply {
+                            text = "Ingredients:"
+                            textSize = 18f
+                            setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
+                            typeface = android.graphics.Typeface.DEFAULT_BOLD
+                            setPadding(0, 16, 0, 8) // Add spacing
+                        }
+                        detailsView.addView(ingredientsHeader) // Add header to the layout
+
+                        // Loop through each ingredient and add a TextView for it
+                        recipeDetails.extendedIngredients.forEach { ingredient ->
+                            val ingredientView = TextView(this@MainActivity).apply {
+                                // Use the 'original' string from the API for full description
+                                text = "• ${ingredient.original ?: ingredient.name ?: "Unknown Ingredient"}" // Add bullet point
+                                textSize = 16f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
+                                setPadding(8, 4, 0, 4) // Indent ingredients slightly
+                            }
+                            detailsView.addView(ingredientView) // Add ingredient TextView to the layout
+                        }
+                    } else {
+                        // Display a message if no ingredients are available
+                        val noIngredientsView = TextView(this@MainActivity).apply {
+                            text = "(No ingredient details provided)"
+                            textSize = 14f
+                            setTypeface(null, Typeface.ITALIC)
+                            setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.darker_gray))
+                            setPadding(0, 16, 0, 8)
+                        }
+                        detailsView.addView(noIngredientsView)
+                    }
 
                     // Instructions header
                     val instructionsHeader = TextView(this@MainActivity).apply {

@@ -17,6 +17,7 @@ interface SpoonacularApi {
     suspend fun searchRecipesByIngredient(
         @Query("ingredients") ingredient: String,  // Adds ingredient(s) as a query parameter
         @Query("number") number: Int,  // Specifies the number of recipes to return
+        @Query("ranking") ranking: Int,
         @Query("apiKey") apiKey: String  // API key required for authentication
     ): List<Recipe>  // Returns a list of recipes matching the given ingredient(s)
 
