@@ -44,6 +44,7 @@ import com.example.android_app.ui.ShoppingListActivity
 import SavedRecipesRepo
 import android.graphics.Typeface
 import com.google.firebase.auth.FirebaseAuth
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,6 +91,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clearIngredientsButton: Button
     private lateinit var saveButton: Button
 
+    private lateinit var dietSpinner: Spinner
+    private lateinit var intoleranceSpinner: Spinner
+
+
 
     // List to store multiple ingredients
     private val ingredientsList = mutableListOf<String>()
@@ -123,6 +128,9 @@ class MainActivity : AppCompatActivity() {
         addIngredientButton = findViewById(R.id.addIngredientButton)
         currentIngredientsText = findViewById(R.id.currentIngredientsText)
         searchRecipesButton = findViewById(R.id.searchRecipesButton)
+
+        dietSpinner = findViewById(R.id.dietSpinner)
+        intoleranceSpinner = findViewById(R.id.intoleranceSpinner)
 
         saveButton = findViewById(R.id.buttonSaveRecipe)
         saveButton.visibility = View.GONE
@@ -427,8 +435,11 @@ class MainActivity : AppCompatActivity() {
     
     @SuppressLint("SetTextI18n")
     private fun fetchRecipeDetails(recipeId: Int) {
+
         lifecycleScope.launch {
             val recipeDetails = SpoonacularService.getRecipeDetails(recipeId)
+
+
             runOnUiThread {
                 if (recipeDetails != null) {
                     // Create a ScrollView programmatically for the recipe details
@@ -507,6 +518,29 @@ class MainActivity : AppCompatActivity() {
                         setPadding(0, 8, 0, 16)
                     }
                     detailsView.addView(instructionsView)
+
+                    if (!recipeDetails.nutrition?.nutrients.isNullOrEmpty()) {
+                        val nutritionHeader = TextView(this@MainActivity).apply {
+                            text = "Nutrition per serving:"
+                            textSize = 18f
+                            setTypeface(null, Typeface.NORMAL)
+                            setPadding(0, 16, 0, 8)
+                        }
+                        detailsView.addView(nutritionHeader)
+
+
+                        recipeDetails.nutrition!!.nutrients.forEach { n ->
+                            val tv = TextView(this@MainActivity).apply {
+                                text = "• ${n.name}: ${"%.1f".format(n.amount)} ${n.unit}"
+                                textSize = 16f
+                                setPadding(8, 4, 0, 4)
+                            }
+                            detailsView.addView(tv)
+                        }
+                    }
+
+
+
 
                     container.addView(detailsView)
 
@@ -619,8 +653,20 @@ class MainActivity : AppCompatActivity() {
         // Join all ingredients with a comma for the API
         val ingredientsString = ingredientsList.joinToString(",")
 
+        val diet = dietSpinner.selectedItem.toString()
+        val intol = intoleranceSpinner.selectedItem.toString()
+
+        val dietParam = if (diet == "Any") null
+            else diet.lowercase(Locale.ROOT)
+        val intolerancesParam = if (intol == "None") null
+            else intol.lowercase(Locale.ROOT)
+
         lifecycleScope.launch {
-            val recipes = SpoonacularService.getRecipes(ingredientsString)
+            val recipes = SpoonacularService.getRecipes(
+                ingredients   = ingredientsString,
+                diet          = dietParam,
+                intolerances  = intolerancesParam
+            )
             Log.d(TAG, "Fetched ${recipes.size} recipes for ingredients: $ingredientsString")
 
             runOnUiThread {

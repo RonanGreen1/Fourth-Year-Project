@@ -5,6 +5,7 @@ import com.example.android_app.model.RecipeDetails
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 // Singleton object to handle API service creation
 object SpoonacularService {
     private const val BASE_URL = "https://api.spoonacular.com/"
@@ -24,23 +25,30 @@ object SpoonacularService {
 
 
     // Function to fetch recipes from Spoonacular with multiple ingredients
-    suspend fun getRecipes(ingredients: String, ranking: Int = 1): List<Recipe> {
-        return try {
-            api.searchRecipesByIngredient(
-                ingredient = ingredients,
-                number = 10,
-                ranking = ranking,
-                apiKey = API_KEY
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
-        }
+    suspend fun getRecipes(
+        ingredients: String,
+        diet: String?,
+        intolerances: String?
+    ): List<Recipe> = try {
+        api.searchRecipesComplex(
+            includeIngredients = ingredients,
+            diet               = diet,
+            intolerances       = intolerances,
+            number             = 10,
+            sort               = "min-missing-ingredients",
+            sortDirection      = "asc",
+            apiKey             = API_KEY
+        ).results
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
     }
 
     suspend fun getRecipeDetails(recipeId: Int): RecipeDetails? {
         return try {
-            api.getRecipeDetails(recipeId, API_KEY)
+            api.getRecipeDetails(
+                recipeId   = recipeId,
+                apiKey     = API_KEY)
         } catch (e: Exception) {
             e.printStackTrace()
             null

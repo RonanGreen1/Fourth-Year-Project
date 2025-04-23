@@ -1,6 +1,7 @@
 package com.example.android_app.api  // Defines the package location of the API interface
 
 // Importing required data models from the model package
+import com.example.android_app.model.ComplexSearchResponse
 import com.example.android_app.model.Recipe  // Represents basic recipe details from API response
 import com.example.android_app.model.RecipeDetails  // Represents detailed recipe information
 
@@ -13,18 +14,22 @@ import retrofit2.http.Query  // Annotation for adding query parameters to a requ
 interface SpoonacularApi {
 
 
-    @GET("recipes/findByIngredients")  // Specifies the API endpoint for ingredient-based search
-    suspend fun searchRecipesByIngredient(
-        @Query("ingredients") ingredient: String,  // Adds ingredient(s) as a query parameter
-        @Query("number") number: Int,  // Specifies the number of recipes to return
-        @Query("ranking") ranking: Int,
-        @Query("apiKey") apiKey: String  // API key required for authentication
-    ): List<Recipe>  // Returns a list of recipes matching the given ingredient(s)
+    @GET("recipes/complexSearch")
+    suspend fun searchRecipesComplex(
+        @Query("includeIngredients") includeIngredients: String,
+        @Query("diet")                diet: String?,        // e.g. "vegetarian"
+        @Query("intolerances")        intolerances: String?,// e.g. "gluten"
+        @Query("number")              number: Int           = 10,
+        @Query("sort")                sort: String?        = "min-missing-ingredients",
+        @Query("sortDirection")       sortDirection: String? = "asc",
+        @Query("apiKey")              apiKey: String
+    ): ComplexSearchResponse
 
 
     @GET("recipes/{id}/information")  // Specifies the API endpoint for fetching recipe details
     suspend fun getRecipeDetails(
         @Path("id") recipeId: Int,  // Inserts recipe ID dynamically into the request URL
+        @Query("includeNutrition") includeNutrition: Boolean = true,
         @Query("apiKey") apiKey: String  // API key required for authentication
     ): RecipeDetails  // Returns the detailed information of the requested recipe
 }

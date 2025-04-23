@@ -12,4 +12,32 @@
         <item>My Model</item>
         <item>Gemini</item>
     </string-array>
+    <string name="prompt_diet">Select Diet</string>
+    <string-array name="diet_options">
+        <item>Any</item> <!-- Represents no filter -->
+        <item>Gluten Free</item>
+        <item>Ketogenic</item>
+        <item>Vegetarian</item>
+        <item>Vegan</item>
+        <item>Pescetarian</item>
+        <item>Paleo</item>
+
+    </string-array>
+
+    <string name="prompt_intolerance">Select Intolerance</string>
+    <string-array name="intolerance_options">
+        <item>None</item> <!-- Represents no filter -->
+        <item>Dairy</item>
+        <item>Egg</item>
+        <item>Gluten</item>
+        <item>Grain</item>
+        <item>Peanut</item>
+        <item>Seafood</item>
+        <item>Sesame</item>
+        <item>Shellfish</item>
+        <item>Soy</item>
+        <item>Sulfite</item>
+        <item>Tree Nut</item>
+        <item>Wheat</item>
+    </string-array>
 </resources>
