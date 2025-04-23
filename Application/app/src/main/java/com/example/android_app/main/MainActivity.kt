@@ -611,11 +611,11 @@ class MainActivity : AppCompatActivity() {
     }
     @SuppressLint("SetTextI18n")
     private fun classifyAndAddIngredient(bitmap: Bitmap) {
-        val ingredient = classifier.classify(bitmap)
-        Log.d(TAG, "Detected ingredient: $ingredient")
+        val (ingredient, confidence) = classifier.classify(bitmap)
+        Log.d(TAG, "Detected ingredient: $ingredient (confidence=${"%.1f".format(confidence * 100)}%)")
 
         runOnUiThread { // Ensure UI updates are on the main thread
-            if (ingredient != "Unknown" && ingredient.isNotEmpty()) { // Added check for empty string
+            if (confidence >= 0.6f && ingredient != "Unknown" && ingredient.isNotEmpty()) {
                 Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
                 addIngredient(ingredient)
 

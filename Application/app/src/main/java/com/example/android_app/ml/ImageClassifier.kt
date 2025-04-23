@@ -52,7 +52,7 @@ class ImageClassifier(private val context: Context) {
     }
 
     // Classifies an input image and returns the most likely label
-    fun classify(bitmap: Bitmap): String {
+    fun classify(bitmap: Bitmap):  Pair<String, Float> {
         // Resize the bitmap to match the model's input dimensions
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
 
@@ -69,15 +69,19 @@ class ImageClassifier(private val context: Context) {
         val probabilities = output[0]
         val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
 
+        val confidence = if (maxIndex >= 0) probabilities[maxIndex] else 0f
+
         // Load class labels from the labels.txt file
         val labels = loadLabels()
 
         // Return the label with the highest probability, or "Unknown" if index is invalid
-        return if (maxIndex != -1 && maxIndex < labels.size) {
+        val label = if (maxIndex != -1 && maxIndex < labels.size) {
             labels[maxIndex]
         } else {
             "Unknown"
         }
+
+        return Pair(label, confidence)
     }
 
     // Converts a bitmap to a ByteBuffer for model input
