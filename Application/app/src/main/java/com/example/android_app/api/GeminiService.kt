@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit
 
 object GeminiService {
 
-    private const val API_KEY = "AIzaSyDTZMz-QEPGqwnXi5svD8-py92ejxTlC2U"
-    // Gemini Pro Vision endpoint
-    private const val ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent?key=$API_KEY\""
+    private const val API_KEY = "AIzaSyCOk51DjQTgmXXbS4AlZ4N9Zx2yqcaIcsc"
+
+    private const val ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$API_KEY"
     private const val TAG = "GeminiVisionService" // For logging
 
     // Helper to convert Bitmap to Base64 String (using JPEG for efficiency)
