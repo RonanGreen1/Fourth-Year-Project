@@ -16,6 +16,7 @@ import com.example.android_app.MainActivity
 import com.example.android_app.R
 import com.example.android_app.model.ShoppingItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 
 
 class ShoppingListActivity : AppCompatActivity() {
@@ -40,7 +41,15 @@ class ShoppingListActivity : AppCompatActivity() {
         adapter = ShoppingListAdapter(emptyList(), this)
         recyclerView.adapter = adapter
 
-        userId = intent.getStringExtra("USER_ID_KEY") ?: "testuser"
+        val current = FirebaseAuth.getInstance().currentUser
+        if (current == null) {
+            Toast.makeText(this, "You must be logged in!", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+
+        userId = current.uid
         Log.d("ShoppingListActivity", "Initialized userId: $userId") // Add log to confirm
 
         fetchShoppingList()

@@ -21,9 +21,8 @@ import kotlinx.coroutines.launch
 
 class SavedRecipeActivity : AppCompatActivity() {
 
-    // Main container where buttons OR details will be shown
+    // Main container where buttons or details will be shown
     private lateinit var container: LinearLayout
-    private lateinit var recipeDetailViewContainer: FrameLayout // Example, could be another LinearLayout
 
     private val repo = SavedRecipesRepo()
     private lateinit var firebaseAuth: FirebaseAuth
@@ -50,20 +49,22 @@ class SavedRecipeActivity : AppCompatActivity() {
     private fun setupAuthStateListener() {
         authStateListener = FirebaseAuth.AuthStateListener { auth ->
             val user = auth.currentUser
-            val userIdToUse: String
-            if (user != null) {
-                userIdToUse = user.uid
-                Log.d("SavedRecipeActivity", "AuthStateListener: User is signed in (${user.uid}).")
-            } else {
-                userIdToUse = "testuser" // Fallback
-                Log.w("SavedRecipeActivity", "AuthStateListener: User is null. APPLYING FALLBACK 'testuser'.")
+            if (user == null) {
+                Log.w("SavedRecipeActivity", "User is signed out. Closing SavedRecipeActivity.")
+                finish()
+                return@AuthStateListener
             }
+
+            val userIdToUse = user.uid
+            Log.d("SavedRecipeActivity", "AuthStateListener: Signed in as $userIdToUse")
+
+            // Only reload the list when UID actually changes
             if (currentUserId != userIdToUse) {
-                Log.d("SavedRecipeActivity", "User ID determined as '$userIdToUse'. Loading initial recipe list.")
                 currentUserId = userIdToUse
-                loadInitialRecipeList(currentUserId!!) // Load the list of buttons
+                Log.d("SavedRecipeActivity", "Loading saved recipes for user $userIdToUse")
+                loadInitialRecipeList(userIdToUse)
             } else {
-                Log.d("SavedRecipeActivity", "User ID '$userIdToUse' already processed.")
+                Log.d("SavedRecipeActivity", "UID unchanged; no need to reload.")
             }
         }
     }
@@ -213,7 +214,7 @@ class SavedRecipeActivity : AppCompatActivity() {
                         text = "Back to Saved List"
                         setOnClickListener {
                             // Reload the initial list view
-                            loadInitialRecipeList(currentUserId ?: "testuser") // Use the current user ID
+                            currentUserId // Use the current user ID
                         }
                         // Add layout params if needed
                         layoutParams = LinearLayout.LayoutParams(
@@ -233,7 +234,7 @@ class SavedRecipeActivity : AppCompatActivity() {
                     // Add Back Button even on error
                     container.addView(Button(this@SavedRecipeActivity).apply {
                         text = "Back to Saved List"
-                        setOnClickListener { loadInitialRecipeList(currentUserId ?: "testuser") }
+                        setOnClickListener { currentUserId }
                         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).also { it.setMargins(0,16,0,0)}
                     })
                 }
@@ -280,7 +281,7 @@ class SavedRecipeActivity : AppCompatActivity() {
             }
             R.id.nav_shopping_list -> {
                 val intent = Intent(this, ShoppingListActivity::class.java)
-                intent.putExtra("USER_ID_KEY", currentUserId ?: "testuser") // Pass determined or fallback ID
+                intent.putExtra("USER_ID_KEY", currentUserId) // Pass determined or fallback ID
                 startActivity(intent)
                 true
             }

@@ -65,10 +65,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loginUsername: EditText
     private lateinit var loginPassword: EditText
     private lateinit var loginButton: Button
+    private lateinit var signupButton: Button
     private lateinit var logoutButton: Button
 
-    // Firestore instance for login
-    private val db = FirebaseFirestore.getInstance()
+
 
     // Our TFLite ImageClassifier
     private lateinit var classifier: ImageClassifier
@@ -99,6 +99,9 @@ class MainActivity : AppCompatActivity() {
     // List to store multiple ingredients
     private val ingredientsList = mutableListOf<String>()
 
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Inflate layout
@@ -122,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         loginUsername = findViewById(R.id.login_username)
         loginPassword = findViewById(R.id.login_password)
         loginButton = findViewById(R.id.login_button)
+        signupButton = findViewById(R.id.signup_button)
         logoutButton = findViewById(R.id.logoutButton)
 
         manualIngredientInput = findViewById(R.id.manualIngredientInput)
@@ -141,13 +145,24 @@ class MainActivity : AppCompatActivity() {
 
         // Set click listener for login button
         loginButton.setOnClickListener {
-            val username = loginUsername.text.toString().trim()
+            val email = loginUsername.text.toString().trim()
             val password = loginPassword.text.toString().trim()
-            if (username.isNotEmpty() && password.isNotEmpty()) {
-                performLogin(username, password)
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                signIn(email, password)
             } else {
                 Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        signupButton.setOnClickListener {
+            val email = loginUsername.text.toString().trim()
+            val pass  = loginPassword.text.toString().trim()
+            if (email.isNotBlank() && pass.isNotBlank()) {
+                signUp(email, pass)
+            } else {
+                Toast.makeText(this, "Enter both email and password", Toast.LENGTH_SHORT).show()
+            }
+
         }
 
         logoutButton.setOnClickListener {
@@ -256,82 +271,56 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
-        // Check the saved login state when the activity starts/resumes
-        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE)
-        val isLoggedIn = sharedPref.getBoolean("IS_LOGGED_IN", false) // Default to false
-
-        if (isLoggedIn) {
-            // User was previously logged in (in this session)
-            Log.d(TAG, "User is logged in (from SharedPreferences), hiding overlay.")
-            loginOverlay.visibility = View.GONE
-            supportActionBar?.show() // Ensure action bar is shown if logged in
-            logoutButton.visibility = View.VISIBLE
+        if (auth.currentUser != null) {
+            enterApp()          // already logged in
         } else {
-            // User is not logged in
-            Log.d(TAG, "User is NOT logged in (from SharedPreferences), showing overlay.")
             loginOverlay.visibility = View.VISIBLE
-            supportActionBar?.hide() // Hide action bar if not logged in
+            supportActionBar?.hide()
             logoutButton.visibility = View.GONE
         }
-
     }
 
-    // Perform login by checking Firestore for matching username and password
-    private fun performLogin(username: String, password: String) {
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val doc = documents.documents[0]
-                    val storedPassword = doc.getString("password")
-                    if (storedPassword == password) {
-                        // Login successful: hide the login overlay
-                        loginOverlay.visibility = View.GONE
-                        val currentUser = FirebaseAuth.getInstance().currentUser
-                        val userId = currentUser?.uid
-                        val intent = Intent(this, ShoppingListActivity::class.java)
-                        intent.putExtra("USER_ID_KEY", userId)
-                        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE) ?: return@addOnSuccessListener
-                        with(sharedPref.edit()) {
-                            putBoolean("IS_LOGGED_IN", true)
-                            apply() // Apply asynchronously
-                        }
-                        loginOverlay.visibility = View.GONE
-                        supportActionBar?.show()
-                        logoutButton.visibility = View.VISIBLE
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
 
-                    } else {
-                        Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
-                    }
+    private fun signIn(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    enterApp()             // hide overlay, show UI
                 } else {
-                    Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        task.exception?.localizedMessage ?: "Login failed",
+                        Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Login error: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun signUp(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    enterApp()
+                } else {
+                    Toast.makeText(this,
+                        task.exception?.localizedMessage ?: "Sign-up failed",
+                        Toast.LENGTH_SHORT).show()
+                }
             }
+    }
+
+    private fun enterApp() {
+        loginOverlay.visibility = View.GONE
+        supportActionBar?.show()
+        logoutButton.visibility = View.VISIBLE
     }
 
     private fun performLogout() {
-        val sharedPref = getSharedPreferences("AppLoginState", Context.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
-            putBoolean("IS_LOGGED_IN", false)
-           // Clear stored user ID if you added it
-            apply()
-        }
-
-        FirebaseAuth.getInstance().signOut()
-
+        auth.signOut()
         loginOverlay.visibility = View.VISIBLE
         supportActionBar?.hide()
         logoutButton.visibility = View.GONE
-        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show()
-
     }
+
+
 
 
 
@@ -547,8 +536,7 @@ class MainActivity : AppCompatActivity() {
                     saveButton.visibility = View.VISIBLE
 
                     saveButton.setOnClickListener {
-                        //val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-                        val userId = "testuser"
+                        val userId = auth.currentUser!!.uid
 
                         SavedRecipesRepo().saveRecipeId(userId, recipeDetails.id) { success ->
                             runOnUiThread {
