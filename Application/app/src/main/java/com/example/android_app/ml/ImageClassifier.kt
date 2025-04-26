@@ -22,6 +22,25 @@ class ImageClassifier(private val context: Context) {
     // Size of the input buffer for the model (4 bytes per float, 3 channels)
     private val modelInputSize = 4 * inputImageWidth * inputImageHeight * 3
 
+    // Load all labels once
+    private val labels: List<String> by lazy {
+        context.assets.open("labels.txt")
+            .bufferedReader()
+            .readLines()
+    }
+
+    private val foodLabelSet: Set<String> by lazy {
+        listOf(
+            "apple","banana","bagel","bell pepper","broccoli","cauliflower","cucumber",
+            "mushroom","orange","lemon","pineapple","pizza","hotdog","cheeseburger",
+            "mashed potato","spaghetti","burrito","dough","trifle","ice cream",
+            "consomme","guacamole","carbonara","pomegranate","jackfruit","custard apple",
+            "head cabbage","zucchini","butternut squash","meat loaf","espresso",
+            "eggnog","hot pot","potpie","red wine"
+
+        ).toSet() // Convert to Set
+    }
+
     // Initialize the interpreter when the class is instantiated
     init {
         loadModel()
@@ -67,21 +86,30 @@ class ImageClassifier(private val context: Context) {
 
         // Extract probabilities and find the index of the highest probability
         val probabilities = output[0]
-        val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
 
-        val confidence = if (maxIndex >= 0) probabilities[maxIndex] else 0f
+        var bestFoodLabel = "Not Food" // Default if no food is found
+        var bestFoodConfidence = 0.0f
 
-        // Load class labels from the labels.txt file
-        val labels = loadLabels()
+        // Iterate through all probabilities and find the best FOOD match
+        for (index in probabilities.indices) {
+            // Ensure index is valid for the labels list
+            if (index < labels.size) {
+                val currentLabel = labels[index]
+                val currentConfidence = probabilities[index]
 
-        // Return the label with the highest probability, or "Unknown" if index is invalid
-        val label = if (maxIndex != -1 && maxIndex < labels.size) {
-            labels[maxIndex]
-        } else {
-            "Unknown"
+                // Check if the current label is in our food set AND
+                // if its confidence is higher than the best food confidence found so far
+                if (foodLabelSet.contains(currentLabel) && currentConfidence > bestFoodConfidence) {
+                    bestFoodConfidence = currentConfidence
+                    bestFoodLabel = currentLabel
+                }
+            } else {
+                break // Stop iterating if index goes out of bounds
+            }
         }
 
-        return Pair(label, confidence)
+        // Return the best food label found and its confidence
+        return Pair(bestFoodLabel, bestFoodConfidence)
     }
 
     // Converts a bitmap to a ByteBuffer for model input

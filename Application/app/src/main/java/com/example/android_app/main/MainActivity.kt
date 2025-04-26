@@ -707,7 +707,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Detected ingredient: $ingredient (confidence=${"%.1f".format(confidence * 100)}%)")
 
         runOnUiThread { // Ensure UI updates are on the main thread
-            if (confidence >= 0.6f && ingredient != "Unknown" && ingredient.isNotEmpty()) {
+            if (confidence >= 0.6f && ingredient != "Not Food" && ingredient.isNotEmpty()) {
                 Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
                 addIngredient(ingredient)
 
