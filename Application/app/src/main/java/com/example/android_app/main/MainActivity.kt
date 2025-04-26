@@ -44,6 +44,9 @@ import com.example.android_app.ui.ShoppingListActivity
 import SavedRecipesRepo
 import android.graphics.Typeface
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
+import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -94,13 +97,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dietSpinner: Spinner
     private lateinit var intoleranceSpinner: Spinner
 
-
+    private lateinit var recommendRecipe: Button
 
     // List to store multiple ingredients
     private val ingredientsList = mutableListOf<String>()
 
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
+    // at least one digit, at least one lowercase, at least one uppercase, at least one special character, no whitespace, at least 8 characters
+    private val PASSWORD_REGEX = Regex(
+        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.buttonSaveRecipe)
         saveButton.visibility = View.GONE
 
-
+        recommendRecipe = findViewById(R.id.recommendRecipe)
 
         clearIngredientsButton = findViewById(R.id.clearIngredientsButton)
 
@@ -158,11 +165,35 @@ class MainActivity : AppCompatActivity() {
             val email = loginUsername.text.toString().trim()
             val pass  = loginPassword.text.toString().trim()
             if (email.isNotBlank() && pass.isNotBlank()) {
-                signUp(email, pass)
-            } else {
-                Toast.makeText(this, "Enter both email and password", Toast.LENGTH_SHORT).show()
-            }
+                when {
+                    email.isBlank() || pass.isBlank() -> {
+                        Toast.makeText(this, "Enter both email and password", Toast.LENGTH_SHORT)
+                            .show()
+                    }
 
+                    pass.length < 6 -> {
+                        // Firebase’s minimum is 6, but you can enforce 8 (or whatever) yourself
+                        Toast.makeText(
+                            this,
+                            "Password must be at least 8 characters",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    !PASSWORD_REGEX.matches(pass) -> {
+                        Toast.makeText(
+                            this,
+                            "Password must have uppercase, lowercase, digit, and special character",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                    else -> {
+                        signUp(email, pass)
+                    }
+                }
+
+            }
         }
 
         logoutButton.setOnClickListener {
@@ -177,6 +208,10 @@ class MainActivity : AppCompatActivity() {
             startCamera()
         } else {
             requestPermissions()
+        }
+
+        recommendRecipe.setOnClickListener {
+            fetchPreferencesAndRecommend()
         }
 
         // Handle model selection from Spinner
@@ -298,6 +333,7 @@ class MainActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+
                     enterApp()
                 } else {
                     Toast.makeText(this,
@@ -311,6 +347,8 @@ class MainActivity : AppCompatActivity() {
         loginOverlay.visibility = View.GONE
         supportActionBar?.show()
         logoutButton.visibility = View.VISIBLE
+        recommendRecipe.visibility = View.VISIBLE
+
     }
 
     private fun performLogout() {
@@ -577,12 +615,78 @@ class MainActivity : AppCompatActivity() {
     private fun addIngredient(ingredient: String) {
         ingredientsList.add(ingredient)
         updateIngredientsDisplay()
+        addPreference(ingredient)
 
         // Show the search button once we have at least one ingredient
         if (ingredientsList.size == 1) {
             searchRecipesButton.visibility = View.VISIBLE
         }
     }
+
+    private fun addPreference(ingredient: String) {
+        val uid = auth.currentUser!!.uid
+
+        val prefRef = FirebaseFirestore
+            .getInstance()
+            .collection("users")
+            .document(uid)
+            .collection("preferences")
+            .document(ingredient)
+
+        // Atomically increment count + set updatedAt
+        prefRef.set(mapOf(
+            "count"     to FieldValue.increment(1),
+            "updatedAt" to FieldValue.serverTimestamp()
+        ), SetOptions.merge())
+    }
+
+    private fun fetchPreferencesAndRecommend() {
+        val uid = auth.currentUser!!.uid
+        val prefsRef = FirebaseFirestore
+            .getInstance()
+            .collection("users")
+            .document(uid)
+            .collection("preferences")
+
+        // 30-day cutoff
+        val cutoff = Date(System.currentTimeMillis() - 30L*24*60*60*1000)
+
+        prefsRef
+            .whereGreaterThan("updatedAt", cutoff)
+            .get()
+            .addOnSuccessListener { snap ->
+                val items = snap.documents.mapNotNull { doc ->
+                    val name  = doc.id
+                    val count = (doc.getLong("count") ?: 0L).toInt()
+                    name to count
+                }
+                if (items.isEmpty()) {
+                    Toast.makeText(this, "No recent ingredients to recommend from", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                // Build weighted list
+                val weighted = items.flatMap { (name, count) -> List(count) { name } }
+
+                // Pick 3–10 unique ingredients
+                val pickCount = (3..10).random().coerceAtMost(weighted.size)
+                val selected = mutableSetOf<String>()
+                while (selected.size < pickCount) {
+                    selected += weighted.random()
+                }
+
+                ingredientsList.clear()
+                ingredientsList.addAll(selected)
+
+                updateIngredientsDisplay()
+
+                fetchRecipesForIngredients()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to load preferences", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
     @SuppressLint("SetTextI18n")
     private fun updateIngredientsDisplay() {

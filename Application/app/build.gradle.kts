@@ -22,6 +22,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" // Test runner for instrumentation tests
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true  // if any unit tests need Android resources
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false // Disable code shrinking and obfuscation for release builds
@@ -73,6 +79,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.core.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)
@@ -96,6 +103,9 @@ dependencies {
 
     implementation(libs.google.material)
 
+    testImplementation(libs.mockwebserver)
 
-
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }

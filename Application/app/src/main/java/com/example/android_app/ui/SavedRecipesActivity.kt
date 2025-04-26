@@ -69,10 +69,10 @@ class SavedRecipeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Fetches ONLY the saved recipe IDs and then triggers fetching
-     * the necessary info (title) to display the initial list of buttons.
-     */
+
+    // Fetches ONLY the saved recipe IDs and then triggers fetching
+    // the necessary info (title) to display the initial list of buttons.
+
     private fun loadInitialRecipeList(userId: String) {
         showRecipeListView()
         container.removeAllViews() // Clear previous buttons/details
@@ -97,10 +97,10 @@ class SavedRecipeActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Fetches just enough info for a recipe ID to display a button.
-     * Calls SpoonacularService.getRecipeDetails but only uses the title.
-     */
+
+    // Fetches just enough info for a recipe ID to display a button.
+    // Calls SpoonacularService.getRecipeDetails but only uses the title.
+
     private fun fetchAndDisplayRecipeButton(recipeId: Long) {
         Log.d("SavedRecipe_List", "--> Fetching title for button for ID: $recipeId")
         lifecycleScope.launch {
@@ -124,10 +124,10 @@ class SavedRecipeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Creates a Button view for the initial recipe list.
-     * Sets an OnClickListener to fetch and display full details when clicked.
-     */
+
+    // Creates a Button view for the initial recipe list.
+    // Sets an OnClickListener to fetch and display full details when clicked.
+
     private fun makeRecipeButton(recipeApiId: Int, title: String): Button {
         return Button(this).apply {
             text = title
@@ -151,10 +151,10 @@ class SavedRecipeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Fetches the FULL details for a specific recipe ID and displays them,
-     * replacing the initial button list.
-     */
+
+     // Fetches the FULL details for a specific recipe ID and displays them,
+     // replacing the initial button list.
+
     private fun displayFullRecipeDetails(recipeId: Int) {
         showRecipeDetailView()
         container.removeAllViews()
