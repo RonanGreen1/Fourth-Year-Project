@@ -99,7 +99,7 @@ class ImageClassifier(private val context: Context) {
 
             // Strip leading digits+colon, then remove any single quotes:
             val withoutIndex = raw
-                .replaceFirst("^\\s*\\d+:\\s*".toRegex(), "")  /
+                .replaceFirst("^\\s*\\d+:\\s*".toRegex(), "") 
                 .replace("'", "")
 
             // Grab text before comma, lowercase for matching
