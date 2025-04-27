@@ -35,8 +35,9 @@ object SpoonacularService {
             diet               = diet,
             intolerances       = intolerances,
             number             = 10,
-            sort               = "min-missing-ingredients",
-            sortDirection      = "asc",
+            fillIngredients    = true,
+            sort               = "max-used-ingredients",
+            sortDirection      = "desc",
             apiKey             = API_KEY
         ).results
     } catch (e: Exception) {

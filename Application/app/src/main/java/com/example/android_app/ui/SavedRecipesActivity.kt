@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.android_app.R
 import com.example.android_app.api.SpoonacularService
 import SavedRecipesRepo // Use the correct repo
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
@@ -155,6 +156,7 @@ class SavedRecipeActivity : AppCompatActivity() {
      // Fetches the FULL details for a specific recipe ID and displays them,
      // replacing the initial button list.
 
+    @SuppressLint("SetTextI18n")
     private fun displayFullRecipeDetails(recipeId: Int) {
         showRecipeDetailView()
         container.removeAllViews()
@@ -194,6 +196,25 @@ class SavedRecipeActivity : AppCompatActivity() {
                         setPadding(0, 0, 0, 16)
                     })
 
+                    if (!recipeDetails.extendedIngredients.isNullOrEmpty()) {
+                        detailsViewLayout.addView(TextView(this@SavedRecipeActivity).apply {
+                            text = "Ingredients:"
+                            textSize = 18f
+                            setTypeface(null, Typeface.BOLD)
+                            setPadding(0, 16, 0, 8)
+                        })
+
+                        recipeDetails.extendedIngredients.forEach { ingredient ->
+                            detailsViewLayout.addView(TextView(this@SavedRecipeActivity).apply {
+                                text = "• ${ingredient.original
+                                    ?: ingredient.name
+                                    ?: "Unknown Ingredient"}"
+                                textSize = 16f
+                                setPadding(8, 4, 0, 4)
+                            })
+                        }
+                    }
+
                     // Add Instructions Header
                     detailsViewLayout.addView(TextView(this@SavedRecipeActivity).apply {
                         text = "Instructions:"
@@ -209,12 +230,27 @@ class SavedRecipeActivity : AppCompatActivity() {
                         setPadding(0, 8, 0, 16)
                     })
 
+                    if (!recipeDetails.nutrition?.nutrients.isNullOrEmpty()) {
+                        detailsViewLayout.addView(TextView(this@SavedRecipeActivity).apply {
+                            text = "Nutrition per serving:"
+                            textSize = 18f
+                            setPadding(0, 16, 0, 8)
+                        })
+                        recipeDetails.nutrition!!.nutrients.forEach { n ->
+                            detailsViewLayout.addView(TextView(this@SavedRecipeActivity).apply {
+                                text = "• ${n.name}: ${"%.1f".format(n.amount)} ${n.unit}"
+                                textSize = 16f
+                                setPadding(8, 4, 0, 4)
+                            })
+                        }
+                    }
+
                     // Add Back Button 
                     detailsViewLayout.addView(Button(this@SavedRecipeActivity).apply {
                         text = "Back to Saved List"
                         setOnClickListener {
-                            // Reload the initial list view
-                            currentUserId // Use the current user ID
+                            startActivity(Intent(this@SavedRecipeActivity, SavedRecipeActivity::class.java))
+                            finish()
                         }
                         // Add layout params if needed
                         layoutParams = LinearLayout.LayoutParams(
@@ -266,7 +302,7 @@ class SavedRecipeActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
-        menu?.findItem(R.id.nav_shopping_list)?.isVisible = false
+        menu?.findItem(R.id.nav_saved_recipes)?.isVisible = false
         return true
     }
 

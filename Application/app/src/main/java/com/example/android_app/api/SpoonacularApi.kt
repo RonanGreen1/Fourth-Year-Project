@@ -20,8 +20,9 @@ interface SpoonacularApi {
         @Query("diet")                diet: String?,        // e.g. "vegetarian"
         @Query("intolerances")        intolerances: String?,// e.g. "gluten"
         @Query("number")              number: Int           = 10,
-        @Query("sort")                sort: String?        = "min-missing-ingredients",
-        @Query("sortDirection")       sortDirection: String? = "asc",
+        @Query("fillIngredients")     fillIngredients: Boolean = true,
+        @Query("sort")                sort: String? = "max-used-ingredients",
+        @Query("sortDirection")       sortDirection: String? = "desc",
         @Query("apiKey")              apiKey: String
     ): ComplexSearchResponse
 

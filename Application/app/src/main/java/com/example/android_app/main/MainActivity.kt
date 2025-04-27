@@ -348,7 +348,13 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.show()
         logoutButton.visibility = View.VISIBLE
         recommendRecipe.visibility = View.VISIBLE
-
+        modelSelector.visibility = View.VISIBLE
+        addIngredientButton.visibility = View.VISIBLE
+        recommendRecipe.visibility = View.VISIBLE
+        dietSpinner.visibility = View.VISIBLE
+        intoleranceSpinner.visibility = View.VISIBLE
+        viewBinding.imageCaptureButton.visibility = View.VISIBLE
+        manualIngredientInput.visibility = View.VISIBLE
     }
 
     private fun performLogout() {
@@ -356,6 +362,18 @@ class MainActivity : AppCompatActivity() {
         loginOverlay.visibility = View.VISIBLE
         supportActionBar?.hide()
         logoutButton.visibility = View.GONE
+        recommendRecipe.visibility = View.GONE
+        modelSelector.visibility = View.GONE
+        addIngredientButton.visibility = View.GONE
+        recommendRecipe.visibility = View.GONE
+        dietSpinner.visibility = View.GONE
+        intoleranceSpinner.visibility = View.GONE
+        viewBinding.imageCaptureButton.visibility = View.GONE
+        manualIngredientInput.visibility = View.GONE
+        searchRecipesButton.visibility = View.GONE
+        clearIngredientsButton.visibility = View.GONE
+
+
     }
 
 
@@ -550,6 +568,7 @@ class MainActivity : AppCompatActivity() {
                         val nutritionHeader = TextView(this@MainActivity).apply {
                             text = "Nutrition per serving:"
                             textSize = 18f
+                            setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
                             setTypeface(null, Typeface.NORMAL)
                             setPadding(0, 16, 0, 8)
                         }
@@ -565,8 +584,6 @@ class MainActivity : AppCompatActivity() {
                             detailsView.addView(tv)
                         }
                     }
-
-
 
 
                     container.addView(detailsView)
@@ -596,6 +613,8 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+
+
 
 
                     // Update the result text to just show the heading
@@ -707,7 +726,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Detected ingredient: $ingredient (confidence=${"%.1f".format(confidence * 100)}%)")
 
         runOnUiThread { // Ensure UI updates are on the main thread
-            if (confidence >= 0.6f && ingredient != "Not Food" && ingredient.isNotEmpty()) {
+            if (confidence >= 0.2f && ingredient != "Not recognised" && ingredient.isNotEmpty()) {
                 Toast.makeText(this, "Detected: $ingredient", Toast.LENGTH_SHORT).show()
                 addIngredient(ingredient)
 
@@ -732,6 +751,17 @@ class MainActivity : AppCompatActivity() {
                 .setMessage("Add more ingredients or search recipes?")
                 .setPositiveButton("Add more") { _, _ ->
                     retakePhoto() // Go back to camera view
+                }
+                .setNeutralButton("Reject") { _, _ ->
+                    // remove it from your list
+                    ingredientsList.remove(detectedIngredient)
+                    updateIngredientsDisplay()
+                    Toast.makeText(
+                        this,
+                        "$detectedIngredient discarded",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    retakePhoto() // back to camera
                 }
                 .setNegativeButton("Search recipes") { _, _ ->
                     fetchRecipesForIngredients() // Search with current list
@@ -772,7 +802,7 @@ class MainActivity : AppCompatActivity() {
                     resultTextView.visibility = View.VISIBLE
 
                     recipes.forEach { recipe ->
-                        Log.d(TAG, "Adding button for: ${recipe.title}")
+
 
                         val button = Button(this@MainActivity).apply {
                             text = recipe.title

@@ -8,6 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import java.util.Locale
 
 // Class for image classification using TensorFlow Lite
 class ImageClassifier(private val context: Context) {
@@ -87,29 +88,35 @@ class ImageClassifier(private val context: Context) {
         // Extract probabilities and find the index of the highest probability
         val probabilities = output[0]
 
-        var bestFoodLabel = "Not Food" // Default if no food is found
-        var bestFoodConfidence = 0.0f
+        var bestLabel      = "Not recognised"
+        var bestConfidence = 0f
 
-        // Iterate through all probabilities and find the best FOOD match
-        for (index in probabilities.indices) {
-            // Ensure index is valid for the labels list
-            if (index < labels.size) {
-                val currentLabel = labels[index]
-                val currentConfidence = probabilities[index]
+        for (i in probabilities.indices) {
+            if (i !in labels.indices) continue
 
-                // Check if the current label is in our food set AND
-                // if its confidence is higher than the best food confidence found so far
-                if (foodLabelSet.contains(currentLabel) && currentConfidence > bestFoodConfidence) {
-                    bestFoodConfidence = currentConfidence
-                    bestFoodLabel = currentLabel
-                }
-            } else {
-                break // Stop iterating if index goes out of bounds
+            // Get the raw line, e.g. " 951: 'lemon',"
+            val raw = labels[i]
+
+            // Strip leading digits+colon, then remove any single quotes:
+            val withoutIndex = raw
+                .replaceFirst("^\\s*\\d+:\\s*".toRegex(), "")  /
+                .replace("'", "")
+
+            // Grab text before comma, lowercase for matching
+            val primary = withoutIndex
+                .substringBefore(",")
+                .trim()
+                .lowercase(Locale.ROOT)
+
+            val conf = probabilities[i]
+            if (primary in foodLabelSet && conf >bestConfidence) {
+                bestConfidence  = conf
+                bestLabel = primary
             }
         }
 
-        // Return the best food label found and its confidence
-        return Pair(bestFoodLabel, bestFoodConfidence)
+
+        return Pair(bestLabel, bestConfidence)
     }
 
     // Converts a bitmap to a ByteBuffer for model input
