@@ -1,5 +1,6 @@
 package com.example.android_app.api
 
+import com.example.android_app.BuildConfig
 import com.example.android_app.model.Recipe
 import com.example.android_app.model.RecipeDetails
 import retrofit2.Retrofit
@@ -9,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 // Singleton object to handle API service creation
 object SpoonacularService {
     private const val BASE_URL = "https://api.spoonacular.com/"
-    private const val API_KEY = "53177bc8405b40d984f15882f17f6518"
+    private const val API_KEY = BuildConfig.SPOONACULAR_API_KEY
 
     private val retrofit by lazy {
         Retrofit.Builder()

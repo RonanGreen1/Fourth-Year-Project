@@ -3,6 +3,7 @@ package com.example.android_app.api
 import android.graphics.Bitmap
 import android.util.Base64
 import android.util.Log
+import com.example.android_app.BuildConfig
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object GeminiService {
 
-    private const val API_KEY = "AIzaSyCOk51DjQTgmXXbS4AlZ4N9Zx2yqcaIcsc"
+    private const val API_KEY = BuildConfig.GEMINI_API_KEY
 
     private const val ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$API_KEY"
     private const val TAG = "GeminiVisionService" // For logging

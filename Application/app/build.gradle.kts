@@ -19,6 +19,13 @@ android {
         versionCode = 1 // Internal version number of the app
         versionName = "1.0" // User-visible version of the app
 
+        val spoon = project.findProperty("SPOONACULAR_API_KEY")
+                as? String ?: error("Missing SPOON…")
+        val gemi  = project.findProperty("GEMINI_API_KEY")
+                as? String ?: error("Missing GEMINI…")
+        buildConfigField("String", "SPOONACULAR_API_KEY", "\"$spoon\"")
+        buildConfigField("String", "GEMINI_API_KEY",      "\"$gemi\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" // Test runner for instrumentation tests
     }
 
@@ -50,6 +57,7 @@ android {
     buildFeatures {
         compose = true // Enables Jetpack Compose in the project
         viewBinding = true // Enables ViewBinding for easier view access
+        buildConfig = true // Enables generation of build configuration fields
     }
 }
 
