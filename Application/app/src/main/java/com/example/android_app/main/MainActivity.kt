@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     // at least one digit, at least one lowercase, at least one uppercase, at least one special character, no whitespace, at least 8 characters
     private val PASSWORD_REGEX = Regex(
-        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"
+        "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                     !PASSWORD_REGEX.matches(pass) -> {
                         Toast.makeText(
                             this,
-                            "Password must have uppercase, lowercase, digit, and special character",
+                            "uppercase, lowercase, digit, special character",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -579,6 +579,7 @@ class MainActivity : AppCompatActivity() {
                             val tv = TextView(this@MainActivity).apply {
                                 text = "• ${n.name}: ${"%.1f".format(n.amount)} ${n.unit}"
                                 textSize = 16f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, android.R.color.black))
                                 setPadding(8, 4, 0, 4)
                             }
                             detailsView.addView(tv)
